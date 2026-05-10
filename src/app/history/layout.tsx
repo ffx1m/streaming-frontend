@@ -1,0 +1,12 @@
+import type { ReactNode } from 'react';
+import { createPageMetadata } from '@/lib/seo';
+
+export const metadata = createPageMetadata({
+  title: 'ประวัติการเข้าชม',
+  description: 'กลับไปดูซีรีส์และตอนล่าสุดที่เคยรับชมบน SeriesApp ได้จากหน้าประวัติการเข้าชม',
+  noIndex: true,
+});
+
+export default function HistoryLayout({ children }: { children: ReactNode }) {
+  return children;
+}

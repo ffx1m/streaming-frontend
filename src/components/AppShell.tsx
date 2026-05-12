@@ -1,11 +1,22 @@
 'use client';
 
 import { usePathname } from 'next/navigation';
+import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isAdminRoute = pathname.startsWith('/admin');
+
+  useEffect(() => {
+    // Only track if not an admin route and not already checked-in this session
+    if (!isAdminRoute && !sessionStorage.getItem('checked_in')) {
+      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      fetch(`${apiUrl}/series/check-in`, { method: 'POST' })
+        .then(() => sessionStorage.setItem('checked_in', 'true'))
+        .catch(() => console.error('Check-in failed'));
+    }
+  }, [isAdminRoute]);
 
   if (isAdminRoute) {
     return <main className="min-h-screen bg-black">{children}</main>;

@@ -1,7 +1,7 @@
 'use client';
 
 import { useEffect, useState, useRef } from 'react';
-import { useParams } from 'next/navigation';
+import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faListUl, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -36,6 +36,7 @@ interface WatchHistoryItem {
 
 export default function WatchPage() {
   const params = useParams();
+  const router = useRouter();
   const slug = params.slug as string;
   const episode = parseInt(params.episode as string) || 1;
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -84,19 +85,31 @@ export default function WatchPage() {
   useEffect(() => {
     if (!seriesData || !seriesData.hasCurrentEpisode || !seriesData.currentEpisodeId) return;
     
-    if (!trackedRef.current) {
-      trackedRef.current = true;
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      fetch(`${apiUrl}/series/view`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ 
-          seriesId: seriesData.seriesId, 
-          episodeId: seriesData.currentEpisodeId 
-        })
-      }).catch(() => console.error('Tracking error'));
+    // Check if this episode has already been tracked in this session
+    const sessionKey = `viewed_${seriesData.seriesId}_${seriesData.currentEpisodeId}`;
+    const alreadyTrackedInSession = sessionStorage.getItem(sessionKey);
+
+    let timer: NodeJS.Timeout;
+
+    if (!trackedRef.current && !alreadyTrackedInSession) {
+      // Delay tracking by 10 seconds to ensure the user is actually watching
+      timer = setTimeout(() => {
+        trackedRef.current = true;
+        sessionStorage.setItem(sessionKey, 'true');
+        
+        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        fetch(`${apiUrl}/series/view`, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ 
+            seriesId: seriesData.seriesId, 
+            episodeId: seriesData.currentEpisodeId 
+          })
+        }).catch(() => console.error('Tracking error'));
+      }, 10000); // 10 seconds delay
     }
     
+    // Update local watch history
     const historyStr = localStorage.getItem('watchHistory') || '[]';
     let history: WatchHistoryItem[] = [];
     try {
@@ -121,6 +134,10 @@ export default function WatchPage() {
     }
 
     localStorage.setItem('watchHistory', JSON.stringify(history.slice(0, 10)));
+
+    return () => {
+      if (timer) clearTimeout(timer);
+    };
   }, [seriesData, episode, slug]);
 
   useEffect(() => {
@@ -133,6 +150,12 @@ export default function WatchPage() {
       }
     }, 100);
   }, [seriesData, episode]);
+
+  const handleVideoEnded = () => {
+    if (seriesData && episode < seriesData.totalEpisodes) {
+      router.push(`/watch/${slug}/${episode + 1}`);
+    }
+  };
 
   if (!seriesData && !missingSeries) {
     return <div className="p-8 text-center text-[var(--color-text-secondary)]">Loading...</div>;
@@ -162,7 +185,7 @@ export default function WatchPage() {
           controls 
           className="h-full w-full object-contain"
           src={seriesData.currentEpisodeUrl}
-          autoPlay
+          onEnded={handleVideoEnded}
         >
           Your browser does not support the video tag.
         </video>

@@ -15,6 +15,7 @@ const notoSansThai = Noto_Sans_Thai({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
     template: '%s | SeriesApp',
     default: 'SeriesApp - ดูซีรีส์แนวตั้งฟรี',

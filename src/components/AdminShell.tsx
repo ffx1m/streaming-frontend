@@ -3,12 +3,13 @@
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faChartPie, faFilm, faSignOutAlt, faBars, faTimes } from '@fortawesome/free-solid-svg-icons';
+import { faChartPie, faFilm, faSignOutAlt, faBars, faTimes, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
 
 const menuItems = [
   { name: 'Dashboard', path: '/admin', icon: faChartPie },
   { name: 'จัดการซีรีส์', path: '/admin/series', icon: faFilm },
+  { name: 'ความปลอดภัย', path: '/admin/security', icon: faShieldAlt },
 ];
 
 export default function AdminLayout({

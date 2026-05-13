@@ -3,6 +3,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShieldAlt, faTrashAlt, faBan, faSyncAlt, faClock, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
+import { adminFetch } from '@/lib/adminFetch';
 
 interface LockoutRecord {
   _id: string;
@@ -17,23 +18,19 @@ export default function SecurityView() {
   const [records, setRecords] = useState<LockoutRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
+  const [currentTime, setCurrentTime] = useState(() => Date.now());
 
   const fetchRecords = useCallback(async () => {
     try {
       setLoading(true);
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${apiUrl}/admin/security/lockouts`, {
-        headers: {
-          'Authorization': `Bearer ${getCookie('admin_token')}`
-        }
-      });
+      const res = await adminFetch('/admin/security/lockouts');
       const data = await res.json();
       if (data.success) {
         setRecords(data.data);
       } else {
         setError(data.message);
       }
-    } catch (err) {
+    } catch {
       setError('Failed to fetch security records');
     } finally {
       setLoading(false);
@@ -41,18 +38,26 @@ export default function SecurityView() {
   }, []);
 
   useEffect(() => {
-    fetchRecords();
+    const timer = setTimeout(() => {
+      fetchRecords();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [fetchRecords]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentTime(Date.now());
+    }, 30000);
+
+    return () => clearInterval(timer);
+  }, []);
 
   const handleBlacklist = async (id: string) => {
     if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการแบน IP นี้ถาวร?')) return;
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${apiUrl}/admin/security/blacklist/${id}`, {
+      const res = await adminFetch(`/admin/security/blacklist/${id}`, {
         method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${getCookie('admin_token')}`
-        }
       });
       const data = await res.json();
       if (data.success) {
@@ -60,7 +65,7 @@ export default function SecurityView() {
       } else {
         alert(data.message);
       }
-    } catch (err) {
+    } catch {
       alert('Failed to blacklist IP');
     }
   };
@@ -68,12 +73,8 @@ export default function SecurityView() {
   const handleWhitelist = async (id: string) => {
     if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการปลดแบน/รีเซ็ต IP นี้?')) return;
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      const res = await fetch(`${apiUrl}/admin/security/lockouts/${id}`, {
+      const res = await adminFetch(`/admin/security/lockouts/${id}`, {
         method: 'DELETE',
-        headers: {
-          'Authorization': `Bearer ${getCookie('admin_token')}`
-        }
       });
       const data = await res.json();
       if (data.success) {
@@ -81,19 +82,13 @@ export default function SecurityView() {
       } else {
         alert(data.message);
       }
-    } catch (err) {
+    } catch {
       alert('Failed to whitelist IP');
     }
   };
 
-  function getCookie(name: string) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop()?.split(';').shift();
-  }
-
   const formatTimeRemaining = (dateStr: string) => {
-    const remaining = new Date(dateStr).getTime() - Date.now();
+    const remaining = new Date(dateStr).getTime() - currentTime;
     if (remaining <= 0) return 'Expired';
     
     if (remaining > 24 * 60 * 60 * 1000) {

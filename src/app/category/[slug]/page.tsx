@@ -2,6 +2,7 @@ import SeriesCard, { SeriesProps } from '@/components/SeriesCard';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { createPageMetadata } from '@/lib/seo';
+import { getRequiredApiUrl } from '@/lib/api';
 
 const categoryMetadata: Record<string, { title: string; description: string }> = {
   all: {
@@ -30,7 +31,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
 
 async function getCategorySeries(slug: string): Promise<SeriesProps[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const apiUrl = getRequiredApiUrl('category series');
     const res = await fetch(`${apiUrl}/series?category=${slug}&limit=24`, {
       cache: 'no-store'
     });

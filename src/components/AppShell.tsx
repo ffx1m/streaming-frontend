@@ -3,6 +3,7 @@
 import { usePathname } from 'next/navigation';
 import { useEffect } from 'react';
 import Navbar from '@/components/Navbar';
+import { getApiUrl } from '@/lib/api';
 
 export default function AppShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
@@ -11,7 +12,7 @@ export default function AppShell({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Only track if not an admin route and not already checked-in this session
     if (!isAdminRoute && !sessionStorage.getItem('checked_in')) {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = getApiUrl();
       fetch(`${apiUrl}/series/check-in`, { method: 'POST' })
         .then(() => sessionStorage.setItem('checked_in', 'true'))
         .catch(() => console.error('Check-in failed'));

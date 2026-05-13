@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import ExternalImage from '@/components/ExternalImage';
+import { adminFetch } from '@/lib/adminFetch';
 
 type LanguageType = 'thai_dub' | 'thai_sub';
 
@@ -67,15 +68,9 @@ export default function CreateSeries() {
     setError('');
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      const res = await fetch(`${apiUrl}/admin/series`, {
+      const res = await adminFetch('/admin/series', {
         method: 'POST',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       

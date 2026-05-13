@@ -5,6 +5,7 @@ import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPlayCircle, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { adminFetch } from '@/lib/adminFetch';
 
 interface Episode {
   _id: string;
@@ -37,12 +38,7 @@ export default function EditEpisode() {
   useEffect(() => {
     async function fetchEpisodeData() {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
-        const res = await fetch(`${apiUrl}/admin/episodes/${seriesId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await adminFetch(`/admin/episodes/${seriesId}`);
         
         if (res.ok) {
           const json = await res.json();
@@ -84,15 +80,9 @@ export default function EditEpisode() {
     setError('');
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      const res = await fetch(`${apiUrl}/admin/episodes/${epId}`, {
+      const res = await adminFetch(`/admin/episodes/${epId}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       

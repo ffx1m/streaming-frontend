@@ -2,9 +2,10 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import SeriesClientView from '@/components/SeriesClientView';
 import { createPageMetadata } from '@/lib/seo';
+import { getRequiredApiUrl } from '@/lib/api';
 
 async function getSeriesDetails(slug: string) {
-  const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+  const apiUrl = getRequiredApiUrl('series details');
   const res = await fetch(`${apiUrl}/series/${slug}`, {
     next: { revalidate: 3600 } // Cache for 1 hour
   });

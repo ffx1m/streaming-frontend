@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPenToSquare, faPlus, faSearch, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import { adminFetch } from '@/lib/adminFetch';
 
 interface Episode {
   _id: string;
@@ -24,12 +25,7 @@ export default function AdminEpisodesList() {
   useEffect(() => {
     async function loadEpisodes() {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
-        const res = await fetch(`${apiUrl}/admin/episodes/${seriesId}`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await adminFetch(`/admin/episodes/${seriesId}`);
         
         if (res.ok) {
           const json = await res.json();
@@ -61,12 +57,8 @@ export default function AdminEpisodesList() {
     if (!confirm('ยืนยันการลบตอนนี้?')) return;
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      const res = await fetch(`${apiUrl}/admin/episodes/${id}`, {
+      const res = await adminFetch(`/admin/episodes/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
       });
       
       if (res.ok) {

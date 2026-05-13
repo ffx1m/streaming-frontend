@@ -1,9 +1,44 @@
 import { MetadataRoute } from 'next';
+import { getRequiredApiUrl, shouldLogApiFetchError } from '@/lib/api';
 
-export default function sitemap(): MetadataRoute.Sitemap {
+type SitemapSeries = {
+  slug: string;
+  updatedAt?: string;
+  createdAt?: string;
+};
+
+async function getSeriesUrls(baseUrl: string): Promise<MetadataRoute.Sitemap> {
+  try {
+    const apiUrl = getRequiredApiUrl('sitemap generation');
+    const res = await fetch(`${apiUrl}/series?limit=1000`, {
+      next: { revalidate: 3600 },
+    });
+
+    if (!res.ok) return [];
+
+    const json = await res.json();
+    const series = (json.data || []) as SitemapSeries[];
+
+    return series
+      .filter((item) => item.slug)
+      .map((item) => ({
+        url: `${baseUrl}/series/${encodeURIComponent(item.slug)}`,
+        lastModified: item.updatedAt || item.createdAt ? new Date(item.updatedAt || item.createdAt || '') : new Date(),
+        changeFrequency: 'weekly',
+        priority: 0.7,
+      }));
+  } catch (error) {
+    if (shouldLogApiFetchError()) {
+      console.error('Error generating dynamic sitemap entries:', error);
+    }
+    return [];
+  }
+}
+
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
 
-  return [
+  const staticRoutes: MetadataRoute.Sitemap = [
     {
       url: baseUrl,
       lastModified: new Date(),
@@ -28,6 +63,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
       changeFrequency: 'daily',
       priority: 0.8,
     },
-    // Dynamically map series URLs here using a database fetch in production
   ];
+
+  const seriesRoutes = await getSeriesUrls(baseUrl);
+  return [...staticRoutes, ...seriesRoutes];
 }

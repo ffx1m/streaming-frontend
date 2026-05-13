@@ -1,4 +1,5 @@
 import type { Metadata } from 'next';
+import { getRequiredApiUrl } from '@/lib/api';
 
 export const siteName = 'SeriesApp';
 export const siteDescription = 'ดูซีรีส์แนวตั้งยอดนิยม พากย์ไทยและซับไทย พร้อมรายการใหม่และตอนล่าสุดบน SeriesApp';
@@ -57,7 +58,7 @@ export function createPageMetadata({ title, description, image, noIndex = false 
 
 export async function fetchSeriesSeo(slug: string): Promise<SeriesSeoData | null> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const apiUrl = getRequiredApiUrl('series SEO metadata');
     const res = await fetch(`${apiUrl}/series/${encodeURIComponent(slug)}`, {
       next: { revalidate: 60 },
     });

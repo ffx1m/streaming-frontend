@@ -3,6 +3,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faFire, faStar, faFilm } from '@fortawesome/free-solid-svg-icons';
 import { createPageMetadata } from '@/lib/seo';
+import { getRequiredApiUrl, shouldLogApiFetchError } from '@/lib/api';
 
 export const metadata = createPageMetadata({
   title: 'ดูซีรีส์แนวตั้งฟรี',
@@ -12,14 +13,14 @@ export const metadata = createPageMetadata({
 // Fetch real data from Backend API
 async function getSeries(filter: string): Promise<SeriesProps[]> {
   try {
-    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    const apiUrl = getRequiredApiUrl('home page series');
     let query = '';
     
     if (filter === 'popular') query = '?isPopular=true';
     if (filter === 'new') query = '?isNewSeries=true';
     
     const res = await fetch(`${apiUrl}/series${query}`, {
-      cache: 'no-store' // Use 'force-cache' or 'revalidate' in production
+      next: { revalidate: 300 }
     });
     
     if (!res.ok) {
@@ -30,7 +31,9 @@ async function getSeries(filter: string): Promise<SeriesProps[]> {
     const json = await res.json();
     return json.data || [];
   } catch (error) {
-    console.error('Error fetching series:', error);
+    if (shouldLogApiFetchError()) {
+      console.error('Error fetching home series:', error);
+    }
     return [];
   }
 }

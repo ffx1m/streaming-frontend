@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faListUl, faPenToSquare, faPlus, faSearch, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import ExternalImage from '@/components/ExternalImage';
+import { adminFetch } from '@/lib/adminFetch';
 
 interface AdminSeries {
   _id: string;
@@ -26,12 +27,7 @@ export default function AdminSeriesList() {
   useEffect(() => {
     async function loadSeries() {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
-        const res = await fetch(`${apiUrl}/admin/series`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await adminFetch('/admin/series');
         
         if (res.ok) {
           const json = await res.json();
@@ -63,12 +59,8 @@ export default function AdminSeriesList() {
     if (!confirm('ยืนยันการลบซีรีส์เรื่องนี้? (ตอนทั้งหมดจะถูกลบด้วย)')) return;
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      const res = await fetch(`${apiUrl}/admin/series/${id}`, {
+      const res = await adminFetch(`/admin/series/${id}`, {
         method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
       });
       
       if (res.ok) {

@@ -6,6 +6,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import ExternalImage from '@/components/ExternalImage';
+import { adminFetch } from '@/lib/adminFetch';
 
 type LanguageType = 'thai_dub' | 'thai_sub';
 
@@ -56,12 +57,7 @@ export default function EditSeries() {
   useEffect(() => {
     async function fetchSeriesData() {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
-        const res = await fetch(`${apiUrl}/admin/series`, {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await adminFetch('/admin/series');
         
         if (res.ok) {
           const json = await res.json();
@@ -115,15 +111,9 @@ export default function EditSeries() {
     setError('');
 
     try {
-      const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-      
-      const res = await fetch(`${apiUrl}/admin/series/${id}`, {
+      const res = await adminFetch(`/admin/series/${id}`, {
         method: 'PUT',
-        headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData)
       });
       

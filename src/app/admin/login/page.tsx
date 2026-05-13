@@ -19,7 +19,7 @@ export default function AdminLogin() {
 
   const checkLockoutStatus = useCallback(async () => {
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = '/api/backend';
       const res = await fetch(`${apiUrl}/admin/security/check-lockout`);
       const data = await res.json();
       
@@ -32,13 +32,17 @@ export default function AdminLogin() {
       } else {
         setLockout({ isLocked: false, remainingMs: 0, isPermanent: false });
       }
-    } catch (err) {
+    } catch {
       console.error('Failed to check lockout status');
     }
   }, []);
 
   useEffect(() => {
-    checkLockoutStatus();
+    const timer = setTimeout(() => {
+      checkLockoutStatus();
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [checkLockoutStatus]);
 
   // Countdown timer effect
@@ -66,17 +70,17 @@ export default function AdminLogin() {
     setLoading(true);
 
     try {
-      const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+      const apiUrl = '/api/backend';
       const res = await fetch(`${apiUrl}/admin/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ username, password })
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        document.cookie = `admin_token=${data.token}; path=/; max-age=86400; SameSite=Strict`;
         router.push('/admin');
       } else {
         setError(data.message || 'รหัสผ่านไม่ถูกต้อง');

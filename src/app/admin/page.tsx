@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartPie, faEye, faFilm, faListUl } from '@fortawesome/free-solid-svg-icons';
+import { adminFetch } from '@/lib/adminFetch';
 
 interface DashboardStats {
   totalSeries: number;
@@ -19,14 +20,7 @@ export default function AdminDashboard() {
   useEffect(() => {
     async function fetchDashboard() {
       try {
-        const token = document.cookie.split('; ').find(row => row.startsWith('admin_token='))?.split('=')[1];
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
-        
-        const res = await fetch(`${apiUrl}/admin/dashboard`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        const res = await adminFetch('/admin/dashboard');
         
         if (res.ok) {
           const json = await res.json();

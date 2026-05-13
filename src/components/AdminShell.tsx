@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartPie, faFilm, faSignOutAlt, faBars, faTimes, faShieldAlt } from '@fortawesome/free-solid-svg-icons';
 import { useState } from 'react';
+import { adminFetch } from '@/lib/adminFetch';
 
 const menuItems = [
   { name: 'Dashboard', path: '/admin', icon: faChartPie },
@@ -21,9 +22,14 @@ export default function AdminLayout({
   const router = useRouter();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
-  const handleLogout = () => {
-    document.cookie = 'admin_token=; path=/; expires=Thu, 01 Jan 1970 00:00:00 GMT';
-    router.push('/admin/login');
+  const handleLogout = async () => {
+    try {
+      await adminFetch('/admin/logout', {
+        method: 'POST',
+      });
+    } finally {
+      router.push('/admin/login');
+    }
   };
 
   const isLoginPage = pathname === '/admin/login';

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import SeriesCard, { SeriesProps } from '@/components/SeriesCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { getApiUrl } from '@/lib/api';
 
 // Mock hook for debounce
 function useDebounce<T>(value: T, delay: number): T {
@@ -31,7 +32,7 @@ export default function SearchPage() {
     
     async function searchSeries() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = getApiUrl();
         const res = await fetch(`${apiUrl}/series?search=${encodeURIComponent(debouncedQuery)}&limit=18`);
         if (cancelled) return;
 

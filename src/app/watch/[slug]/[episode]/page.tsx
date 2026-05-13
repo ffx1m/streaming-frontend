@@ -5,6 +5,7 @@ import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faListUl, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
+import { getApiUrl } from '@/lib/api';
 
 interface Episode {
   _id: string;
@@ -50,7 +51,7 @@ export default function WatchPage() {
 
     async function fetchSeriesDetails() {
       try {
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = getApiUrl();
         const res = await fetch(`${apiUrl}/series/${slug}`);
 
         if (!res.ok) {
@@ -97,7 +98,7 @@ export default function WatchPage() {
         trackedRef.current = true;
         sessionStorage.setItem(sessionKey, 'true');
         
-        const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+        const apiUrl = getApiUrl();
         fetch(`${apiUrl}/series/view`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },

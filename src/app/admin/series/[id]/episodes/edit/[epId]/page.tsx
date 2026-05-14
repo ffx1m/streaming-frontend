@@ -4,8 +4,9 @@ import { useState, useEffect } from 'react';
 import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faArrowLeft, faPlayCircle, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
+import { faArrowLeft, faSave, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { adminFetch } from '@/lib/adminFetch';
+import VideoUrlField from '@/components/VideoUrlField';
 
 interface Episode {
   _id: string;
@@ -173,20 +174,7 @@ export default function EditEpisode() {
               <h2 className="font-bold text-[var(--color-primary)]">ไฟล์วิดีโอ</h2>
             </div>
             <div className="p-4">
-              <label className="space-y-2">
-                <span className="block text-sm font-semibold text-[var(--color-text-secondary)]">Video URL <span className="text-red-400">*</span></span>
-                <div className="relative">
-                  <FontAwesomeIcon icon={faPlayCircle} className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-[var(--color-text-secondary)]" />
-                  <input
-                    type="url"
-                    name="videoUrl"
-                    required
-                    value={formData.videoUrl}
-                    onChange={handleChange}
-                    className="w-full rounded-md border border-white/10 bg-black px-9 py-2.5 font-mono text-sm outline-none transition-colors focus:border-[var(--color-primary)]"
-                  />
-                </div>
-              </label>
+              <VideoUrlField value={formData.videoUrl} onChange={handleChange} />
             </div>
           </section>
         </div>

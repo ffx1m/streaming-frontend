@@ -12,6 +12,7 @@
 body {
   background-color: var(--color-background);
   color: var(--color-text-primary);
+  font-family: "Noto Sans Thai", "Leelawadee UI", Tahoma, Arial, sans-serif;
 }
 
 ::-webkit-scrollbar {

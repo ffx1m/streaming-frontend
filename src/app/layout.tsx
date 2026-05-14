@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Noto_Sans_Thai } from 'next/font/google';
 import './globals.css';
 import AppShell from '@/components/AppShell';
 
@@ -7,12 +6,6 @@ import AppShell from '@/components/AppShell';
 import { config } from '@fortawesome/fontawesome-svg-core';
 import '@fortawesome/fontawesome-svg-core/styles.css';
 config.autoAddCss = false;
-
-const notoSansThai = Noto_Sans_Thai({ 
-  subsets: ['thai', 'latin'], 
-  weight: ['300', '400', '500', '600', '700'],
-  display: 'swap',
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
@@ -30,7 +23,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className="dark">
-      <body className={`${notoSansThai.className} bg-black text-white antialiased min-h-screen flex flex-col`}>
+      <body className="min-h-screen bg-black text-white antialiased flex flex-col">
         <AppShell>
           {children}
         </AppShell>

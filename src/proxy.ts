@@ -20,6 +20,7 @@ function redirectToLogin(request: NextRequest) {
   const loginUrl = new URL('/admin/login', request.url);
   const response = NextResponse.redirect(loginUrl);
   response.cookies.delete('admin_token');
+  response.cookies.delete('admin_csrf');
   return response;
 }
 
@@ -45,6 +46,7 @@ export async function proxy(request: NextRequest) {
     if (token) {
       const response = NextResponse.next();
       response.cookies.delete('admin_token');
+      response.cookies.delete('admin_csrf');
       return response;
     }
   }

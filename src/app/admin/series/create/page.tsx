@@ -30,16 +30,6 @@ const initialFormData: SeriesFormData = {
   isNewSeries: true,
 };
 
-function createSlugFromTitle(title: string) {
-  return title
-    .normalize('NFKC')
-    .toLowerCase()
-    .trim()
-    .replace(/[^\p{L}\p{M}\p{N}]+/gu, '-')
-    .replace(/-+/g, '-')
-    .replace(/^-+|-+$/g, '');
-}
-
 export default function CreateSeries() {
   const router = useRouter();
   const [formData, setFormData] = useState<SeriesFormData>(initialFormData);
@@ -54,12 +44,6 @@ export default function CreateSeries() {
       ...prev,
       [target.name]: value,
     }));
-  };
-
-  const generateSlug = () => {
-    if (!formData.title) return;
-
-    setFormData((prev) => ({ ...prev, slug: createSlugFromTitle(formData.title) }));
   };
 
   const handleSubmit = async (event: React.FormEvent) => {
@@ -140,9 +124,6 @@ export default function CreateSeries() {
                     <label htmlFor="series-slug" className="text-sm font-semibold text-[var(--color-text-secondary)]">
                       Slug <span className="text-red-400">*</span>
                     </label>
-                    <button type="button" onClick={generateSlug} className="text-xs font-bold text-[var(--color-primary)] hover:underline">
-                      สร้างจากชื่อเรื่อง
-                    </button>
                   </div>
                   <input
                     id="series-slug"
@@ -154,6 +135,9 @@ export default function CreateSeries() {
                     placeholder="master-of-the-house-s1"
                     className="w-full rounded-md border border-white/10 bg-black px-3 py-2.5 font-mono text-sm outline-none transition-colors placeholder:text-[var(--color-text-secondary)] focus:border-[var(--color-primary)]"
                   />
+                  <p className="text-xs text-[var(--color-text-secondary)]">
+                    Use lowercase letters, numbers, and hyphens only. Example: master-of-the-house-s1
+                  </p>
                 </div>
               </div>
 

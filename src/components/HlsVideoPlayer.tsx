@@ -48,6 +48,12 @@ export default function HlsVideoPlayer({ src, className, onEnded }: HlsVideoPlay
     const hls = new Hls({
       enableWorker: true,
       lowLatencyMode: false,
+      backBufferLength: 180,         // เก็บวิดีโอที่ดูไปแล้วไว้ใน RAM 3 นาที (กดย้อนกลับลื่นปรี๊ด)
+      maxBufferLength: 180,          // โหลดวิดีโอล่วงหน้าไว้ 3 นาที (ให้จบตอนสำหรับวิดีโอสั้น)
+      maxMaxBufferLength: 300,       // เพดานสูงสุดของการโหลดล่วงหน้า
+      maxBufferSize: 90 * 1024 * 1024, // เพิ่มขนาด Buffer ใน RAM เป็น 90MB (ครอบคลุมวิดีโอ 1080p ทั้งตอน)
+      startLevel: 0,                 // เริ่มต้นที่ความละเอียดต่ำสุดเพื่อความเร็วในการเปิดติด (Instant Start)
+      abrEwmaDefaultEstimate: 5000000, // ประเมินเน็ตเริ่มต้นไว้ที่ 5Mbps เพื่อให้ขยับมาชัดเร็วขึ้น
     });
 
     hls.loadSource(src);

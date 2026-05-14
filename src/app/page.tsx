@@ -5,6 +5,8 @@ import { faFire, faStar, faFilm } from '@fortawesome/free-solid-svg-icons';
 import { createPageMetadata } from '@/lib/seo';
 import { getRequiredApiUrl, shouldLogApiFetchError } from '@/lib/api';
 
+export const dynamic = 'force-dynamic';
+
 export const metadata = createPageMetadata({
   title: 'ดูซีรีส์แนวตั้งฟรี',
   description: 'รวมซีรีส์แนวตั้งยอดนิยม ซีรีส์มาใหม่ พากย์ไทยและซับไทย ดูรายการทั้งหมดได้ในที่เดียวบน SeriesApp',

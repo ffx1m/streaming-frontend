@@ -1,8 +1,8 @@
 import type { Metadata } from 'next';
 import { getRequiredApiUrl } from '@/lib/api';
 
-export const siteName = 'SeriesApp';
-export const siteDescription = 'ดูซีรีส์แนวตั้งยอดนิยม พากย์ไทยและซับไทย พร้อมรายการใหม่และตอนล่าสุดบน SeriesApp';
+export const siteName = 'VSeries';
+export const siteDescription = 'ดูซีรีส์แนวตั้งยอดนิยม พากย์ไทยและซับไทย พร้อมรายการใหม่และตอนล่าสุดบน VSeries';
 
 type PageMetadataInput = {
   title: string;

@@ -7,15 +7,15 @@ import { getRequiredApiUrl } from '@/lib/api';
 const categoryMetadata: Record<string, { title: string; description: string }> = {
   all: {
     title: 'ซีรีส์ทั้งหมด',
-    description: 'รวมซีรีส์แนวตั้งทั้งหมดบน SeriesApp ทั้งพากย์ไทย ซับไทย รายการยอดนิยม และซีรีส์มาใหม่',
+    description: 'รวมซีรีส์แนวตั้งทั้งหมดบน VSeries ทั้งพากย์ไทย ซับไทย รายการยอดนิยม และซีรีส์มาใหม่',
   },
   thai_dub: {
     title: 'ซีรีส์พากย์ไทย',
-    description: 'รวมซีรีส์แนวตั้งพากย์ไทย ดูง่าย สนุกต่อเนื่อง บน SeriesApp',
+    description: 'รวมซีรีส์แนวตั้งพากย์ไทย ดูง่าย สนุกต่อเนื่อง บน VSeries',
   },
   thai_sub: {
     title: 'ซีรีส์ซับไทย',
-    description: 'รวมซีรีส์แนวตั้งซับไทยสำหรับคนชอบเสียงต้นฉบับ พร้อมคำบรรยายไทยบน SeriesApp',
+    description: 'รวมซีรีส์แนวตั้งซับไทยสำหรับคนชอบเสียงต้นฉบับ พร้อมคำบรรยายไทยบน VSeries',
   },
 };
 
@@ -23,7 +23,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   const { slug } = await params;
   const meta = categoryMetadata[slug] || {
     title: 'หมวดหมู่ซีรีส์',
-    description: 'เลือกดูซีรีส์แนวตั้งตามหมวดหมู่บน SeriesApp',
+    description: 'เลือกดูซีรีส์แนวตั้งตามหมวดหมู่บน VSeries',
   };
 
   return createPageMetadata(meta);

@@ -10,8 +10,8 @@ config.autoAddCss = false;
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'),
   title: {
-    template: '%s | SeriesApp',
-    default: 'SeriesApp - ดูซีรีส์แนวตั้งฟรี',
+    template: '%s | VSeries',
+    default: 'VSeries - ดูซีรีส์แนวตั้งฟรี',
   },
   description: 'แอปพลิเคชันสำหรับดูซีรีส์แนวตั้งยอดนิยม พากย์ไทยและซับไทย',
 };

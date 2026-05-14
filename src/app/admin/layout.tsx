@@ -5,7 +5,7 @@ import { createPageMetadata } from '@/lib/seo';
 
 export const metadata: Metadata = createPageMetadata({
   title: 'Admin Console',
-  description: 'พื้นที่จัดการข้อมูลซีรีส์ ตอน และภาพรวมระบบของ SeriesApp',
+  description: 'พื้นที่จัดการข้อมูลซีรีส์ ตอน และภาพรวมระบบของ VSeries',
   noIndex: true,
 });
 

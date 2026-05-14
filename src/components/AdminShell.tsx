@@ -48,7 +48,7 @@ export default function AdminLayout({
       `}>
         <div className="flex h-16 items-center justify-between border-b border-white/10 px-5">
           <Link href="/admin" className="min-w-0">
-            <p className="text-lg font-bold text-white">SeriesApp</p>
+            <p className="text-lg font-bold text-white">VSeries</p>
             <p className="text-xs font-medium text-[var(--color-text-secondary)]">Admin console</p>
           </Link>
           <button
@@ -105,7 +105,7 @@ export default function AdminLayout({
       <div className="min-w-0 flex-1">
         <header className="sticky top-0 z-30 flex h-14 items-center justify-between border-b border-white/10 bg-[#101011]/95 px-4 backdrop-blur md:hidden">
           <div>
-            <p className="text-sm font-semibold text-[var(--color-text-secondary)]">SeriesApp</p>
+            <p className="text-sm font-semibold text-[var(--color-text-secondary)]">VSeries</p>
             <p className="text-base font-bold">Admin</p>
           </div>
           <button

@@ -23,7 +23,7 @@ export default function Navbar() {
           <div className="flex h-16 items-center justify-between">
             <div className="flex items-center">
               <Link href="/" className="flex-shrink-0 text-xl font-bold text-white">
-                SeriesApp
+                VSeries
               </Link>
             </div>
             <div className="flex items-center gap-2">
@@ -48,7 +48,7 @@ export default function Navbar() {
 
       <div className="fixed left-0 right-0 top-0 z-50 flex h-14 items-center justify-center border-b border-white/10 bg-[#101011]/95 px-4 backdrop-blur-md md:hidden">
         <Link href="/" className="text-lg font-bold text-white">
-          SeriesApp
+          VSeries
         </Link>
       </div>
       

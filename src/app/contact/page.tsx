@@ -5,7 +5,7 @@ import { createPageMetadata } from '@/lib/seo';
 
 export const metadata = createPageMetadata({
   title: 'ติดต่อเรา',
-  description: 'ติดต่อทีมงาน SeriesApp สำหรับคำถาม ข้อเสนอแนะ หรือแจ้งปัญหาการใช้งานเว็บดูซีรีส์',
+  description: 'ติดต่อทีมงาน VSeries สำหรับคำถาม ข้อเสนอแนะ หรือแจ้งปัญหาการใช้งานเว็บดูซีรีส์',
 });
 
 export default function ContactPage() {
@@ -18,13 +18,13 @@ export default function ContactPage() {
 
       <div className="space-y-3 rounded-lg border border-white/10 bg-[#1b1b1d] p-4 sm:p-6">
         
-        <a href="mailto:support@seriesapp.com" className="flex items-center gap-4 rounded-md p-4 transition-colors hover:bg-white/5">
+        <a href="mailto:support@vseries.com" className="flex items-center gap-4 rounded-md p-4 transition-colors hover:bg-white/5">
           <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--color-primary)]/15 text-xl text-[var(--color-primary)]">
             <FontAwesomeIcon icon={faEnvelope} />
           </div>
           <div>
             <h3 className="font-bold text-lg">Email</h3>
-            <p className="text-[var(--color-text-secondary)]">support@seriesapp.com</p>
+            <p className="text-[var(--color-text-secondary)]">support@vseries.com</p>
           </div>
         </a>
 
@@ -37,7 +37,7 @@ export default function ContactPage() {
               <h3 className="font-bold text-lg">Facebook</h3>
               <span className="rounded bg-white/10 px-2 py-1 text-xs font-bold text-[var(--color-text-secondary)]">เร็ว ๆ นี้</span>
             </div>
-            <p className="text-[var(--color-text-secondary)]">SeriesApp Thailand</p>
+            <p className="text-[var(--color-text-secondary)]">VSeries Thailand</p>
           </div>
         </div>
 
@@ -50,7 +50,7 @@ export default function ContactPage() {
               <h3 className="font-bold text-lg">Line Official</h3>
               <span className="rounded bg-white/10 px-2 py-1 text-xs font-bold text-[var(--color-text-secondary)]">เร็ว ๆ นี้</span>
             </div>
-            <p className="text-[var(--color-text-secondary)]">@seriesapp</p>
+            <p className="text-[var(--color-text-secondary)]">@vseries</p>
           </div>
         </div>
 

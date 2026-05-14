@@ -3,7 +3,7 @@ import { createPageMetadata } from '@/lib/seo';
 
 export const metadata = createPageMetadata({
   title: 'ประวัติการเข้าชม',
-  description: 'กลับไปดูซีรีส์และตอนล่าสุดที่เคยรับชมบน SeriesApp ได้จากหน้าประวัติการเข้าชม',
+  description: 'กลับไปดูซีรีส์และตอนล่าสุดที่เคยรับชมบน VSeries ได้จากหน้าประวัติการเข้าชม',
   noIndex: true,
 });
 

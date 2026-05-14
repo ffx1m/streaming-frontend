@@ -1,11 +1,12 @@
 'use client';
 
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faListUl, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { getApiUrl } from '@/lib/api';
+import HlsVideoPlayer from '@/components/HlsVideoPlayer';
 
 interface Episode {
   _id: string;
@@ -40,7 +41,6 @@ export default function WatchPage() {
   const router = useRouter();
   const slug = params.slug as string;
   const episode = parseInt(params.episode as string) || 1;
-  const videoRef = useRef<HTMLVideoElement>(null);
   const trackedRef = useRef(false);
   
   const [seriesData, setSeriesData] = useState<WatchData | null>(null);
@@ -181,15 +181,11 @@ export default function WatchPage() {
   return (
     <div className="mx-auto flex max-w-5xl flex-col space-y-5 px-0 py-0 sm:px-6 sm:py-6 lg:px-8">
       <div className="relative flex aspect-video w-full items-center justify-center overflow-hidden bg-black sm:rounded-lg sm:border sm:border-white/10">
-        <video 
-          ref={videoRef}
-          controls 
+        <HlsVideoPlayer
           className="h-full w-full object-contain"
           src={seriesData.currentEpisodeUrl}
           onEnded={handleVideoEnded}
-        >
-          Your browser does not support the video tag.
-        </video>
+        />
       </div>
 
       <div className="space-y-5 px-4 sm:px-0">

@@ -20,7 +20,7 @@ async function getSeries(filter: string): Promise<SeriesProps[]> {
     if (filter === 'new') query = '?isNewSeries=true';
     
     const res = await fetch(`${apiUrl}/series${query}`, {
-      next: { revalidate: 300 }
+      cache: 'no-store'
     });
     
     if (!res.ok) {

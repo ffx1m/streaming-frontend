@@ -34,6 +34,7 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
   const [toastMessage, setToastMessage] = useState('');
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [loadingEpisodes, setLoadingEpisodes] = useState(true);
+  const [fetchError, setFetchEpisodesError] = useState(false);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
   const chunkSize = 20;
@@ -67,34 +68,36 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
     return () => window.removeEventListener('resize', measureDescription);
   }, [series?.description]);
 
+  const fetchEpisodes = async (signal: AbortSignal) => {
+    setLoadingEpisodes(true);
+    setFetchEpisodesError(false);
+    try {
+      const apiUrl = getApiUrl();
+      const res = await fetch(
+        `${apiUrl}/series/${series.slug}/episodes?page=${currentTab + 1}&limit=${chunkSize}`,
+        { signal }
+      );
+      
+      if (res.ok) {
+        const json = await res.json();
+        setEpisodes(json.data || []);
+      } else {
+        setFetchEpisodesError(true);
+        console.error(`Failed to fetch episodes: ${res.status} ${res.statusText}`);
+      }
+    } catch (error: any) {
+      if (error.name !== 'AbortError') {
+        setFetchEpisodesError(true);
+        console.error('Failed to fetch episodes:', error);
+      }
+    } finally {
+      setLoadingEpisodes(false);
+    }
+  };
+
   useEffect(() => {
     const controller = new AbortController();
-    
-    async function fetchEpisodes() {
-      setLoadingEpisodes(true);
-      try {
-        const apiUrl = getApiUrl();
-        const res = await fetch(
-          `${apiUrl}/series/${series.slug}/episodes?page=${currentTab + 1}&limit=${chunkSize}`,
-          { signal: controller.signal }
-        );
-        
-        if (res.ok) {
-          const json = await res.json();
-          setEpisodes(json.data || []);
-        } else {
-          console.error(`Failed to fetch episodes: ${res.status} ${res.statusText}`);
-        }
-      } catch (error: any) {
-        if (error.name !== 'AbortError') {
-          console.error('Failed to fetch episodes:', error);
-        }
-      } finally {
-        setLoadingEpisodes(false);
-      }
-    }
-
-    fetchEpisodes();
+    fetchEpisodes(controller.signal);
     return () => controller.abort();
   }, [series.slug, currentTab]);
 

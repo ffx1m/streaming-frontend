@@ -57,6 +57,7 @@ export default function WatchPage() {
 
   useEffect(() => {
     trackedRef.current = false;
+    setSeriesData(null); // Reset state to show skeleton during transition
 
     async function fetchWatchData() {
       try {

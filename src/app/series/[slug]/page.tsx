@@ -1,10 +1,11 @@
 import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
+import { cache } from 'react';
 import SeriesClientView from '@/components/SeriesClientView';
 import { createPageMetadata } from '@/lib/seo';
 import { getRequiredApiUrl } from '@/lib/api';
 
-async function getSeriesDetails(slug: string) {
+const getSeriesDetails = cache(async (slug: string) => {
   const apiUrl = getRequiredApiUrl('series details');
   const res = await fetch(`${apiUrl}/series/${slug}`, {
     next: { revalidate: 3600 } // Cache for 1 hour
@@ -13,7 +14,7 @@ async function getSeriesDetails(slug: string) {
   if (!res.ok) return null;
   const json = await res.json();
   return json.data;
-}
+});
 
 export async function generateMetadata({ params }: { params: Promise<{ slug: string }> }): Promise<Metadata> {
   const { slug } = await params;

@@ -24,7 +24,7 @@ function redirectToLogin(request: NextRequest) {
   return response;
 }
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
   const token = request.cookies.get('admin_token')?.value;
   const hasValidAdminToken = await verifyAdminToken(token);

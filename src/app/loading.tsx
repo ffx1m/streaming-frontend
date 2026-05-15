@@ -1,14 +1,8 @@
-import { SeriesGridSkeleton } from '@/components/Skeletons';
-
-export default function HomeLoading() {
+export default function RootLoading() {
+  // A simple centered spinner or minimal progress bar for pages without specific loading states
   return (
-    <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 lg:px-8">
-      {Array.from({ length: 2 }).map((_, index) => (
-        <section key={index} className="space-y-4">
-          <div className="h-7 w-48 animate-pulse rounded bg-white/10" />
-          <SeriesGridSkeleton count={6} />
-        </section>
-      ))}
+    <div className="flex min-h-[50vh] items-center justify-center">
+      <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--color-primary)] border-t-transparent" />
     </div>
   );
 }

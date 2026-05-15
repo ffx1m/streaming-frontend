@@ -58,10 +58,10 @@ export default function WatchPage() {
   useEffect(() => {
     trackedRef.current = false;
 
-    async function fetchSeriesDetails() {
+    async function fetchWatchData() {
       try {
         const apiUrl = getApiUrl();
-        const res = await fetch(`${apiUrl}/series/${slug}`);
+        const res = await fetch(`${apiUrl}/series/${slug}/watch/${episode}`);
 
         if (!res.ok) {
           setMissingSeries(true);
@@ -69,29 +69,17 @@ export default function WatchPage() {
         }
 
         const json = await res.json();
-        const data = json.data;
-        const episodes = (data.episodes || []) as Episode[];
-        const currentEp = episodes.find((ep) => ep.episodeNumber === episode);
-        const nextEp = episodes.find((ep) => ep.episodeNumber === episode + 1);
-        
-        setSeriesData({
-          seriesId: data._id,
-          title: data.title,
-          slug: data.slug,
-          posterUrl: data.posterUrl,
-          totalEpisodes: episodes.length,
-          currentEpisodeId: currentEp ? currentEp._id : null,
-          currentEpisodeUrl: currentEp ? currentEp.videoUrl : '',
-          nextEpisodeUrl: nextEp ? nextEp.videoUrl : '',
-          hasCurrentEpisode: Boolean(currentEp),
-        });
+        setSeriesData(json.data);
+        if (json.data && !json.data.hasCurrentEpisode) {
+          setMissingSeries(true);
+        }
       } catch {
         console.error('Error fetching watch data');
         setMissingSeries(true);
       }
     }
     
-    fetchSeriesDetails();
+    fetchWatchData();
   }, [slug, episode]);
 
   useEffect(() => {

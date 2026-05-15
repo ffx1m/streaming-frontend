@@ -68,23 +68,34 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
   }, [series?.description]);
 
   useEffect(() => {
+    const controller = new AbortController();
+    
     async function fetchEpisodes() {
       setLoadingEpisodes(true);
       try {
         const apiUrl = getApiUrl();
-        const res = await fetch(`${apiUrl}/series/${series.slug}/episodes?page=${currentTab + 1}&limit=${chunkSize}`);
+        const res = await fetch(
+          `${apiUrl}/series/${series.slug}/episodes?page=${currentTab + 1}&limit=${chunkSize}`,
+          { signal: controller.signal }
+        );
+        
         if (res.ok) {
           const json = await res.json();
           setEpisodes(json.data || []);
+        } else {
+          console.error(`Failed to fetch episodes: ${res.status} ${res.statusText}`);
         }
-      } catch (error) {
-        console.error('Failed to fetch episodes:', error);
+      } catch (error: any) {
+        if (error.name !== 'AbortError') {
+          console.error('Failed to fetch episodes:', error);
+        }
       } finally {
         setLoadingEpisodes(false);
       }
     }
 
     fetchEpisodes();
+    return () => controller.abort();
   }, [series.slug, currentTab]);
 
   const handleShare = () => {

@@ -1,12 +1,18 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { useParams, useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faListUl, faChevronLeft, faChevronRight } from '@fortawesome/free-solid-svg-icons';
 import { getApiUrl } from '@/lib/api';
-import HlsVideoPlayer from '@/components/HlsVideoPlayer';
+import { WatchSkeleton } from '@/components/Skeletons';
+
+const HlsVideoPlayer = dynamic(() => import('@/components/HlsVideoPlayer'), {
+  ssr: false,
+  loading: () => <div className="h-full w-full animate-pulse bg-white/10" />,
+});
 
 interface Episode {
   _id: string;
@@ -159,7 +165,7 @@ export default function WatchPage() {
   };
 
   if (!seriesData && !missingSeries) {
-    return <div className="p-8 text-center text-[var(--color-text-secondary)]">Loading...</div>;
+    return <WatchSkeleton />;
   }
 
   if (missingSeries || !seriesData || !seriesData.hasCurrentEpisode) {

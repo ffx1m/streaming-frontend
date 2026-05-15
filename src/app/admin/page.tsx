@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChartPie, faEye, faFilm, faListUl } from '@fortawesome/free-solid-svg-icons';
 import { adminFetch } from '@/lib/adminFetch';
+import { StatCardsSkeleton } from '@/components/Skeletons';
 
 interface DashboardStats {
   totalSeries: number;
@@ -50,18 +51,22 @@ export default function AdminDashboard() {
         <p className="text-sm font-medium text-[var(--color-text-secondary)]">ภาพรวมระบบ</p>
         <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Dashboard</h1>
       </div>
-      
-      <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
-        {statCards.map((card) => (
-          <div key={card.label} className="rounded-lg border border-white/10 bg-[#1b1b1d] p-4">
-            <div className="flex items-center justify-between gap-3">
-              <p className="text-sm font-semibold text-[var(--color-text-secondary)]">{card.label}</p>
-              <FontAwesomeIcon icon={card.icon} className={`h-4 w-4 ${card.tone}`} />
+
+      {loading ? (
+        <StatCardsSkeleton />
+      ) : (
+        <div className="grid grid-cols-2 gap-3 lg:grid-cols-4">
+          {statCards.map((card) => (
+            <div key={card.label} className="rounded-lg border border-white/10 bg-[#1b1b1d] p-4">
+              <div className="flex items-center justify-between gap-3">
+                <p className="text-sm font-semibold text-[var(--color-text-secondary)]">{card.label}</p>
+                <FontAwesomeIcon icon={card.icon} className={`h-4 w-4 ${card.tone}`} />
+              </div>
+              <p className={`mt-3 text-2xl font-bold md:text-3xl ${card.tone}`}>{card.value}</p>
             </div>
-            <p className={`mt-3 text-2xl font-bold md:text-3xl ${card.tone}`}>{loading ? '-' : card.value}</p>
-          </div>
-        ))}
-      </div>
+          ))}
+        </div>
+      )}
       
       <div className="grid gap-4 lg:grid-cols-2">
         <section className="rounded-lg border border-white/10 bg-[#1b1b1d] p-4">

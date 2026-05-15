@@ -5,6 +5,7 @@ import SeriesCard, { SeriesProps } from '@/components/SeriesCard';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faSearch, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import { getApiUrl } from '@/lib/api';
+import { SeriesGridSkeleton } from '@/components/Skeletons';
 
 type Pagination = {
   page: number;
@@ -130,6 +131,13 @@ export default function SearchPage() {
       {!hasQuery && (
         <div className="mx-auto max-w-2xl rounded-lg border border-white/10 bg-[#1b1b1d] px-4 py-10 text-center text-sm text-[var(--color-text-secondary)]">
           เริ่มค้นหาด้วยชื่อซีรีส์ ภาษาไทยหรืออังกฤษก็ได้
+        </div>
+      )}
+
+      {hasQuery && loading && results.length === 0 && (
+        <div className="space-y-4">
+          <div className="h-7 w-36 animate-pulse rounded bg-white/10" />
+          <SeriesGridSkeleton count={12} />
         </div>
       )}
 

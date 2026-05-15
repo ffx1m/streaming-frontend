@@ -4,6 +4,8 @@ import { notFound } from 'next/navigation';
 import { createPageMetadata } from '@/lib/seo';
 import { getRequiredApiUrl } from '@/lib/api';
 
+export const revalidate = 60;
+
 type Pagination = {
   page: number;
   limit: number;
@@ -53,7 +55,7 @@ async function getCategorySeries(slug: string, page: number): Promise<CategorySe
   try {
     const apiUrl = getRequiredApiUrl('category series');
     const res = await fetch(`${apiUrl}/series?category=${slug}&limit=24&page=${page}`, {
-      cache: 'no-store'
+      next: { revalidate: 60 },
     });
     
     if (!res.ok) return { series: [], pagination: null };

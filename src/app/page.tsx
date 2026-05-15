@@ -5,57 +5,57 @@ import { faFire, faStar, faFilm } from '@fortawesome/free-solid-svg-icons';
 import { createPageMetadata } from '@/lib/seo';
 import { getRequiredApiUrl, shouldLogApiFetchError } from '@/lib/api';
 
-export const dynamic = 'force-dynamic';
+export const revalidate = 60;
 
 export const metadata = createPageMetadata({
   title: 'VSeries - ดูซีรีส์แนวตั้งฟรี',
   description: 'รวมซีรีส์แนวตั้งยอดนิยม ซีรีส์มาใหม่ พากย์ไทยและซับไทย ดูรายการทั้งหมดได้ในที่เดียวบน VSeries',
 });
 
-// Fetch real data from Backend API
-async function getSeries(filter: string): Promise<SeriesProps[]> {
+type HomeSeries = {
+  popular: SeriesProps[];
+  newSeries: SeriesProps[];
+  latest: SeriesProps[];
+};
+
+async function getHomeSeries(): Promise<HomeSeries> {
   try {
     const apiUrl = getRequiredApiUrl('home page series');
-    let query = '';
-    
-    if (filter === 'popular') query = '?isPopular=true';
-    if (filter === 'new') query = '?isNewSeries=true';
-    
-    const res = await fetch(`${apiUrl}/series${query}`, {
-      cache: 'no-store'
+    const res = await fetch(`${apiUrl}/series/home`, {
+      next: { revalidate: 60 },
     });
     
     if (!res.ok) {
-      console.error('Failed to fetch series');
-      return [];
+      console.error('Failed to fetch home series');
+      return { popular: [], newSeries: [], latest: [] };
     }
     
     const json = await res.json();
-    return json.data || [];
+    return {
+      popular: json.data?.popular || [],
+      newSeries: json.data?.newSeries || [],
+      latest: json.data?.latest || [],
+    };
   } catch (error) {
     if (shouldLogApiFetchError()) {
       console.error('Error fetching home series:', error);
     }
-    return [];
+    return { popular: [], newSeries: [], latest: [] };
   }
 }
 
 export default async function Home() {
-  const [popularSeries, newSeries, allSeries] = await Promise.all([
-    getSeries('popular'),
-    getSeries('new'),
-    getSeries('all'),
-  ]);
+  const { popular, newSeries, latest } = await getHomeSeries();
 
   return (
     <div className="mx-auto max-w-7xl space-y-10 px-4 py-6 sm:px-6 lg:px-8">
-      <SeriesSection title="ซีรีส์ยอดนิยม" icon={faFire} iconClassName="text-orange-400" series={popularSeries.slice(0, 12)} />
-      <SeriesSection title="ซีรีส์มาใหม่" icon={faStar} iconClassName="text-yellow-300" series={newSeries.slice(0, 12)} />
+      <SeriesSection title="ซีรีส์ยอดนิยม" icon={faFire} iconClassName="text-orange-400" series={popular} />
+      <SeriesSection title="ซีรีส์มาใหม่" icon={faStar} iconClassName="text-yellow-300" series={newSeries} />
       <SeriesSection
         title="ซีรีส์ทั้งหมด"
         icon={faFilm}
         iconClassName="text-[var(--color-primary)]"
-        series={allSeries.slice(0, 12)}
+        series={latest}
         action={<Link href="/category/all" className="text-sm font-bold text-[var(--color-primary)] hover:underline">ดูเพิ่มเติม</Link>}
       />
     </div>

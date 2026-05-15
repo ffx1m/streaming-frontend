@@ -4,6 +4,20 @@ import { notFound } from 'next/navigation';
 import { createPageMetadata } from '@/lib/seo';
 import { getRequiredApiUrl } from '@/lib/api';
 
+type Pagination = {
+  page: number;
+  limit: number;
+  total: number;
+  totalPages: number;
+  hasNextPage: boolean;
+  hasPreviousPage: boolean;
+};
+
+type CategorySeriesResponse = {
+  series: SeriesProps[];
+  pagination: Pagination | null;
+};
+
 const categoryMetadata: Record<string, { title: string; description: string }> = {
   all: {
     title: 'ซีรีส์ทั้งหมด',
@@ -29,32 +43,49 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
   return createPageMetadata(meta);
 }
 
-async function getCategorySeries(slug: string): Promise<SeriesProps[]> {
+function getPageValue(value: string | string[] | undefined) {
+  const rawValue = Array.isArray(value) ? value[0] : value;
+  const page = Number.parseInt(rawValue || '1', 10);
+  return Number.isFinite(page) && page > 0 ? page : 1;
+}
+
+async function getCategorySeries(slug: string, page: number): Promise<CategorySeriesResponse> {
   try {
     const apiUrl = getRequiredApiUrl('category series');
-    const res = await fetch(`${apiUrl}/series?category=${slug}&limit=24`, {
+    const res = await fetch(`${apiUrl}/series?category=${slug}&limit=24&page=${page}`, {
       cache: 'no-store'
     });
     
-    if (!res.ok) return [];
+    if (!res.ok) return { series: [], pagination: null };
     
     const json = await res.json();
-    return json.data || [];
+    return {
+      series: json.data || [],
+      pagination: json.pagination || null,
+    };
   } catch (error) {
     console.error('Error fetching category series:', error);
-    return [];
+    return { series: [], pagination: null };
   }
 }
 
-export default async function CategoryPage({ params }: { params: Promise<{ slug: string }> }) {
+export default async function CategoryPage({
+  params,
+  searchParams,
+}: {
+  params: Promise<{ slug: string }>;
+  searchParams: Promise<{ page?: string | string[] }>;
+}) {
   const { slug } = await params;
+  const { page: pageParam } = await searchParams;
+  const page = getPageValue(pageParam);
   
   const validCategories = ['all', 'thai_dub', 'thai_sub'];
   if (!validCategories.includes(slug)) {
     notFound();
   }
 
-  const series = await getCategorySeries(slug);
+  const { series, pagination } = await getCategorySeries(slug, page);
   
   const categoryTitle = 
     slug === 'all' ? 'ซีรีส์ทั้งหมด' :
@@ -83,10 +114,44 @@ export default async function CategoryPage({ params }: { params: Promise<{ slug:
       </div>
       
       {series.length > 0 ? (
-        <div className="grid grid-cols-3 gap-3 md:grid-cols-4 md:gap-4 lg:grid-cols-6">
-          {series.map((item) => (
-            <SeriesCard key={item._id} series={item} />
-          ))}
+        <div className="space-y-6">
+          <div className="grid grid-cols-3 gap-3 md:grid-cols-4 md:gap-4 lg:grid-cols-6">
+            {series.map((item) => (
+              <SeriesCard key={item._id} series={item} />
+            ))}
+          </div>
+
+          {pagination && pagination.totalPages > 1 && (
+            <div className="flex items-center justify-center gap-3">
+              {pagination.hasPreviousPage ? (
+                <Link
+                  href={`/category/${slug}?page=${pagination.page - 1}`}
+                  className="rounded-md bg-[#1b1b1d] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10"
+                >
+                  ก่อนหน้า
+                </Link>
+              ) : (
+                <span className="rounded-md bg-[#1b1b1d] px-4 py-2 text-sm font-bold text-[var(--color-text-secondary)] opacity-50">
+                  ก่อนหน้า
+                </span>
+              )}
+              <span className="text-sm font-semibold text-[var(--color-text-secondary)]">
+                หน้า {pagination.page} / {pagination.totalPages}
+              </span>
+              {pagination.hasNextPage ? (
+                <Link
+                  href={`/category/${slug}?page=${pagination.page + 1}`}
+                  className="rounded-md bg-[var(--color-primary)] px-4 py-2 text-sm font-bold text-white transition-colors hover:bg-blue-600"
+                >
+                  ถัดไป
+                </Link>
+              ) : (
+                <span className="rounded-md bg-[#1b1b1d] px-4 py-2 text-sm font-bold text-[var(--color-text-secondary)] opacity-50">
+                  ถัดไป
+                </span>
+              )}
+            </div>
+          )}
         </div>
       ) : (
         <div className="rounded-lg border border-white/10 bg-[#1b1b1d] px-4 py-14 text-center">

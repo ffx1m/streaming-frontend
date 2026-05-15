@@ -43,7 +43,10 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     description: 'เลือกดูซีรีส์แนวตั้งตามหมวดหมู่บน VSeries',
   };
 
-  return createPageMetadata(meta);
+  return createPageMetadata({
+    ...meta,
+    canonical: `/category/${slug}`,
+  });
 }
 
 async function getCategorySeries(slug: string, page: number): Promise<CategorySeriesResponse> {

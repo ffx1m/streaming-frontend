@@ -8,6 +8,7 @@ type PageMetadataInput = {
   title: string;
   description: string;
   image?: string | null;
+  canonical?: string;
   noIndex?: boolean;
 };
 
@@ -25,7 +26,20 @@ export function trimDescription(value: string | undefined, maxLength = 155) {
   return `${normalized.slice(0, maxLength - 1).trim()}…`;
 }
 
-export function createPageMetadata({ title, description, image, noIndex = false }: PageMetadataInput): Metadata {
+export function getSiteUrl() {
+  return (process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000').replace(/\/+$/, '');
+}
+
+export function jsonLdScriptProps(data: unknown) {
+  return {
+    type: 'application/ld+json',
+    dangerouslySetInnerHTML: {
+      __html: JSON.stringify(data).replace(/</g, '\\u003c'),
+    },
+  };
+}
+
+export function createPageMetadata({ title, description, image, canonical, noIndex = false }: PageMetadataInput): Metadata {
   const normalizedDescription = trimDescription(description);
   const fullTitle = `${title} | ${siteName}`;
 
@@ -39,6 +53,7 @@ export function createPageMetadata({ title, description, image, noIndex = false 
       description: normalizedDescription,
       siteName,
       type: 'website',
+      url: canonical,
       images: image ? [{ url: image }] : undefined,
     },
     twitter: {
@@ -47,6 +62,7 @@ export function createPageMetadata({ title, description, image, noIndex = false 
       description: normalizedDescription,
       images: image ? [image] : undefined,
     },
+    alternates: canonical ? { canonical } : undefined,
     robots: noIndex
       ? {
           index: false,

@@ -8,8 +8,9 @@ import { getRequiredApiUrl, shouldLogApiFetchError } from '@/lib/api';
 export const revalidate = 60;
 
 export const metadata = createPageMetadata({
-  title: 'VSeries - ดูซีรีส์แนวตั้งฟรี',
+  title: 'ดูซีรีส์แนวตั้งฟรี',
   description: 'รวมซีรีส์แนวตั้งยอดนิยม ซีรีส์มาใหม่ พากย์ไทยและซับไทย ดูรายการทั้งหมดได้ในที่เดียวบน VSeries',
+  canonical: '/',
 });
 
 type HomeSeries = {

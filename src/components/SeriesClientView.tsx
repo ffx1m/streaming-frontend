@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useCallback, useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faShareNodes, faEye, faListUl, faSpinner } from '@fortawesome/free-solid-svg-icons';
@@ -68,7 +68,7 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
     return () => window.removeEventListener('resize', measureDescription);
   }, [series?.description]);
 
-  const fetchEpisodes = async (signal: AbortSignal) => {
+  const fetchEpisodes = useCallback(async (signal: AbortSignal) => {
     setLoadingEpisodes(true);
     setFetchEpisodesError(false);
     try {
@@ -85,21 +85,31 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
         setFetchEpisodesError(true);
         console.error(`Failed to fetch episodes: ${res.status} ${res.statusText}`);
       }
-    } catch (error: any) {
-      if (error.name !== 'AbortError') {
+    } catch (error: unknown) {
+      if (!(error instanceof Error && error.name === 'AbortError')) {
         setFetchEpisodesError(true);
         console.error('Failed to fetch episodes:', error);
       }
     } finally {
       setLoadingEpisodes(false);
     }
-  };
+  }, [currentTab, series.slug]);
 
   useEffect(() => {
     const controller = new AbortController();
-    fetchEpisodes(controller.signal);
-    return () => controller.abort();
-  }, [series.slug, currentTab]);
+    let cancelled = false;
+
+    queueMicrotask(() => {
+      if (!cancelled) {
+        fetchEpisodes(controller.signal);
+      }
+    });
+
+    return () => {
+      cancelled = true;
+      controller.abort();
+    };
+  }, [fetchEpisodes]);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -217,6 +227,10 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
             {Array(8).fill(null).map((_, idx) => (
               <div key={idx} className="h-20 animate-pulse rounded-lg border border-white/10 bg-white/5" />
             ))}
+          </div>
+        ) : fetchError ? (
+          <div className="rounded-lg border border-red-500/30 bg-red-500/10 px-4 py-10 text-center text-sm font-semibold text-red-200">
+            ไม่สามารถโหลดรายชื่อตอนได้ในขณะนี้
           </div>
         ) : episodes.length > 0 ? (
           <div className={`grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 ${loadingEpisodes ? 'opacity-50' : ''}`}>

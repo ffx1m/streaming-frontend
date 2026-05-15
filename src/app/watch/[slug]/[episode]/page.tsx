@@ -14,13 +14,6 @@ const HlsVideoPlayer = dynamic(() => import('@/components/HlsVideoPlayer'), {
   loading: () => <div className="h-full w-full animate-pulse bg-white/10" />,
 });
 
-interface Episode {
-  _id: string;
-  episodeNumber: number;
-  title: string;
-  videoUrl: string;
-}
-
 interface WatchData {
   seriesId: string;
   title: string;
@@ -56,13 +49,21 @@ export default function WatchPage() {
   const [missingSeries, setMissingSeries] = useState(false);
 
   useEffect(() => {
+    let cancelled = false;
     trackedRef.current = false;
-    setSeriesData(null); // Reset state to show skeleton during transition
+    queueMicrotask(() => {
+      if (!cancelled) {
+        setSeriesData(null);
+        setMissingSeries(false);
+      }
+    });
 
     async function fetchWatchData() {
       try {
         const apiUrl = getApiUrl();
         const res = await fetch(`${apiUrl}/series/${slug}/watch/${episode}`);
+
+        if (cancelled) return;
 
         if (!res.ok) {
           setMissingSeries(true);
@@ -81,6 +82,10 @@ export default function WatchPage() {
     }
     
     fetchWatchData();
+
+    return () => {
+      cancelled = true;
+    };
   }, [slug, episode]);
 
   useEffect(() => {

@@ -36,14 +36,20 @@ export default function SearchPage() {
   const hasQuery = debouncedQuery.trim().length > 0;
 
   useEffect(() => {
-    if (!debouncedQuery.trim()) {
-      setResults([]);
-      setPagination(null);
-      setLoading(false);
-      return;
-    }
-
     let cancelled = false;
+
+    if (!debouncedQuery.trim()) {
+      queueMicrotask(() => {
+        if (cancelled) return;
+        setResults([]);
+        setPagination(null);
+        setLoading(false);
+      });
+
+      return () => {
+        cancelled = true;
+      };
+    }
     
     async function searchSeries() {
       try {

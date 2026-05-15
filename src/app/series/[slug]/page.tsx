@@ -2,12 +2,12 @@ import { notFound } from 'next/navigation';
 import { Metadata } from 'next';
 import { cache } from 'react';
 import SeriesClientView from '@/components/SeriesClientView';
-import { createPageMetadata } from '@/lib/seo';
+import { createPageMetadata, getSiteUrl, jsonLdScriptProps } from '@/lib/seo';
 import { getRequiredApiUrl } from '@/lib/api';
 
 const getSeriesDetails = cache(async (slug: string) => {
   const apiUrl = getRequiredApiUrl('series details');
-  const res = await fetch(`${apiUrl}/series/${slug}`, {
+  const res = await fetch(`${apiUrl}/series/${encodeURIComponent(slug)}`, {
     next: { revalidate: 3600 } // Cache for 1 hour
   });
 
@@ -24,6 +24,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     return createPageMetadata({
       title: 'ไม่พบซีรีส์',
       description: 'ขออภัย ไม่พบซีรีส์ที่คุณกำลังตามหา',
+      canonical: `/series/${encodeURIComponent(slug)}`,
     });
   }
 
@@ -31,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ slug: str
     title: series.title,
     description: series.description,
     image: series.posterUrl,
+    canonical: `/series/${encodeURIComponent(slug)}`,
   });
 }
 
@@ -42,5 +44,41 @@ export default async function SeriesDetailPage({ params }: { params: Promise<{ s
     notFound();
   }
 
-  return <SeriesClientView series={series} />;
+  const seriesUrl = `${getSiteUrl()}/series/${encodeURIComponent(slug)}`;
+  const seriesJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'TVSeries',
+    name: series.title,
+    description: series.description,
+    image: series.posterUrl,
+    url: seriesUrl,
+    inLanguage: 'th-TH',
+    numberOfEpisodes: series.totalEpisodes,
+  };
+  const breadcrumbJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'หน้าแรก',
+        item: getSiteUrl(),
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: series.title,
+        item: seriesUrl,
+      },
+    ],
+  };
+
+  return (
+    <>
+      <script {...jsonLdScriptProps(seriesJsonLd)} />
+      <script {...jsonLdScriptProps(breadcrumbJsonLd)} />
+      <SeriesClientView series={series} />
+    </>
+  );
 }

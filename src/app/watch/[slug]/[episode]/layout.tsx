@@ -15,6 +15,7 @@ export async function generateMetadata({
     return createPageMetadata({
       title: `รับชมตอนที่ ${episodeNumber}`,
       description: siteDescription,
+      canonical: `/watch/${encodeURIComponent(slug)}/${episodeNumber}`,
       noIndex: true,
     });
   }
@@ -23,6 +24,7 @@ export async function generateMetadata({
     title: `${series.title} ตอนที่ ${episodeNumber}`,
     description: trimDescription(`ดู ${series.title} ตอนที่ ${episodeNumber} บน SeriesApp`),
     image: series.posterUrl,
+    canonical: `/watch/${encodeURIComponent(slug)}/${episodeNumber}`,
     noIndex: true,
   });
 }

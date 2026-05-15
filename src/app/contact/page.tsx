@@ -6,6 +6,7 @@ import { createPageMetadata } from '@/lib/seo';
 export const metadata = createPageMetadata({
   title: 'ติดต่อเรา',
   description: 'ติดต่อทีมงาน VSeries สำหรับคำถาม ข้อเสนอแนะ หรือแจ้งปัญหาการใช้งานเว็บดูซีรีส์',
+  canonical: '/contact',
 });
 
 export default function ContactPage() {

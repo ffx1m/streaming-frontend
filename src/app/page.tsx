@@ -22,11 +22,10 @@ async function getHomeSeries(): Promise<HomeSeries> {
   try {
     const apiUrl = getRequiredApiUrl('home page series');
     const res = await fetch(`${apiUrl}/series/home`, {
-      next: { revalidate: 60 },
+      next: { revalidate: 300 }, // Cache for 5 minutes instead of 1
     });
     
     if (!res.ok) {
-      console.error('Failed to fetch home series');
       return { popular: [], newSeries: [], latest: [] };
     }
     

@@ -3,10 +3,11 @@
 import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faPlay, faShareNodes, faEye, faListUl } from '@fortawesome/free-solid-svg-icons';
+import { faPlay, faShareNodes, faEye, faListUl, faSpinner } from '@fortawesome/free-solid-svg-icons';
 import ExternalImage from '@/components/ExternalImage';
 import LanguageBadge from '@/components/LanguageBadge';
 import Toast from '@/components/Toast';
+import { getApiUrl } from '@/lib/api';
 
 interface Episode {
   _id: string;
@@ -24,7 +25,6 @@ interface SeriesDetails {
   languageType: 'thai_dub' | 'thai_sub';
   totalEpisodes: number;
   views?: number;
-  episodes?: Episode[];
 }
 
 export default function SeriesClientView({ series }: { series: SeriesDetails }) {
@@ -32,7 +32,13 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
   const [canToggleDescription, setCanToggleDescription] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
   const [toastMessage, setToastMessage] = useState('');
+  const [episodes, setEpisodes] = useState<Episode[]>([]);
+  const [loadingEpisodes, setLoadingEpisodes] = useState(true);
   const descriptionRef = useRef<HTMLParagraphElement>(null);
+
+  const chunkSize = 20;
+  const totalEpisodesCount = series.totalEpisodes;
+  const numTabs = Math.ceil(totalEpisodesCount / chunkSize);
 
   useEffect(() => {
     const descriptionElement = descriptionRef.current;
@@ -48,7 +54,6 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
       const collapsedLines = window.matchMedia('(min-width: 640px)').matches ? 3 : 2;
       const collapsedHeight = lineHeight * collapsedLines;
       
-      // Temporary remove clamp to measure full height
       const previousLineClamp = descriptionElement.style.webkitLineClamp;
       descriptionElement.style.webkitLineClamp = 'unset';
       const fullHeight = descriptionElement.scrollHeight;
@@ -61,6 +66,26 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
     window.addEventListener('resize', measureDescription);
     return () => window.removeEventListener('resize', measureDescription);
   }, [series?.description]);
+
+  useEffect(() => {
+    async function fetchEpisodes() {
+      setLoadingEpisodes(true);
+      try {
+        const apiUrl = getApiUrl();
+        const res = await fetch(`${apiUrl}/series/${series.slug}/episodes?page=${currentTab + 1}&limit=${chunkSize}`);
+        if (res.ok) {
+          const json = await res.json();
+          setEpisodes(json.data || []);
+        }
+      } catch (error) {
+        console.error('Failed to fetch episodes:', error);
+      } finally {
+        setLoadingEpisodes(false);
+      }
+    }
+
+    fetchEpisodes();
+  }, [series.slug, currentTab]);
 
   const handleShare = () => {
     if (navigator.share) {
@@ -75,12 +100,7 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
     }
   };
 
-  const chunkSize = 20;
-  const episodes = series.episodes || [];
-  const totalEpisodes = episodes.length;
-  const hasEpisodes = totalEpisodes > 0;
-  const numTabs = Math.ceil(totalEpisodes / chunkSize);
-  const displayedEpisodes = episodes.slice(currentTab * chunkSize, (currentTab + 1) * chunkSize);
+  const hasEpisodes = totalEpisodesCount > 0;
 
   return (
     <div className="mx-auto max-w-5xl space-y-8 px-4 py-6 sm:px-6 lg:px-8">
@@ -150,13 +170,16 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
       </section>
 
       <section className="space-y-4">
-        <h2 className="text-xl font-bold">รายชื่อตอนทั้งหมด</h2>
+        <div className="flex items-center gap-4">
+          <h2 className="text-xl font-bold">รายชื่อตอนทั้งหมด</h2>
+          {loadingEpisodes && <FontAwesomeIcon icon={faSpinner} className="animate-spin text-[var(--color-primary)]" />}
+        </div>
         
         {numTabs > 1 && (
           <div className="flex gap-2 overflow-x-auto pb-2">
             {Array(numTabs).fill(null).map((_, idx) => {
               const startEp = idx * chunkSize + 1;
-              const endEp = Math.min((idx + 1) * chunkSize, totalEpisodes);
+              const endEp = Math.min((idx + 1) * chunkSize, totalEpisodesCount);
               return (
                 <button
                   key={idx}
@@ -175,9 +198,15 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
           </div>
         )}
 
-        {hasEpisodes ? (
+        {loadingEpisodes && episodes.length === 0 ? (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4">
-            {displayedEpisodes.map((ep) => (
+            {Array(8).fill(null).map((_, idx) => (
+              <div key={idx} className="h-20 animate-pulse rounded-lg border border-white/10 bg-white/5" />
+            ))}
+          </div>
+        ) : episodes.length > 0 ? (
+          <div className={`grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 ${loadingEpisodes ? 'opacity-50' : ''}`}>
+            {episodes.map((ep) => (
               <Link 
                 key={ep._id} 
                 href={`/watch/${series.slug}/${ep.episodeNumber}`}
@@ -188,7 +217,7 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
               </Link>
             ))}
           </div>
-        ) : (
+        ) : !loadingEpisodes && (
           <div className="rounded-lg border border-white/10 bg-[#1b1b1d] px-4 py-10 text-center text-sm text-[var(--color-text-secondary)]">
             ตอนของซีรีส์นี้ยังไม่ถูกเพิ่มเข้าระบบ
           </div>

@@ -4,6 +4,8 @@ import { useState, useEffect, useCallback } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faShieldAlt, faTrashAlt, faBan, faSyncAlt, faClock, faExclamationTriangle } from '@fortawesome/free-solid-svg-icons';
 import { adminFetch } from '@/lib/adminFetch';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import Toast from '@/components/Toast';
 
 interface LockoutRecord {
   _id: string;
@@ -19,6 +21,9 @@ export default function SecurityView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [currentTime, setCurrentTime] = useState(() => Date.now());
+  const [pendingAction, setPendingAction] = useState<{ type: 'blacklist' | 'whitelist'; id: string; ip: string } | null>(null);
+  const [actionLoading, setActionLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
 
   const fetchRecords = useCallback(async () => {
     try {
@@ -53,37 +58,58 @@ export default function SecurityView() {
     return () => clearInterval(timer);
   }, []);
 
+  const showToast = (message: string, tone: 'success' | 'error' = 'success') => {
+    setToast({ message, tone });
+    window.setTimeout(() => setToast(null), 3500);
+  };
+
   const handleBlacklist = async (id: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการแบน IP นี้ถาวร?')) return;
     try {
       const res = await adminFetch(`/admin/security/blacklist/${id}`, {
         method: 'PUT',
       });
       const data = await res.json();
       if (data.success) {
-        fetchRecords();
+        await fetchRecords();
+        showToast('แบน IP ถาวรแล้ว');
       } else {
-        alert(data.message);
+        showToast(data.message || 'Failed to blacklist IP', 'error');
       }
     } catch {
-      alert('Failed to blacklist IP');
+      showToast('Failed to blacklist IP', 'error');
     }
   };
 
   const handleWhitelist = async (id: string) => {
-    if (!confirm('คุณแน่ใจหรือไม่ว่าต้องการปลดแบน/รีเซ็ต IP นี้?')) return;
     try {
       const res = await adminFetch(`/admin/security/lockouts/${id}`, {
         method: 'DELETE',
       });
       const data = await res.json();
       if (data.success) {
-        fetchRecords();
+        await fetchRecords();
+        showToast('ปลดแบน/รีเซ็ต IP แล้ว');
       } else {
-        alert(data.message);
+        showToast(data.message || 'Failed to whitelist IP', 'error');
       }
     } catch {
-      alert('Failed to whitelist IP');
+      showToast('Failed to whitelist IP', 'error');
+    }
+  };
+
+  const confirmPendingAction = async () => {
+    if (!pendingAction) return;
+
+    setActionLoading(true);
+    try {
+      if (pendingAction.type === 'blacklist') {
+        await handleBlacklist(pendingAction.id);
+      } else {
+        await handleWhitelist(pendingAction.id);
+      }
+      setPendingAction(null);
+    } finally {
+      setActionLoading(false);
     }
   };
 
@@ -172,7 +198,7 @@ export default function SecurityView() {
                       <div className="flex justify-end gap-2">
                         {!record.isBlacklisted && (
                           <button
-                            onClick={() => handleBlacklist(record._id)}
+                            onClick={() => setPendingAction({ type: 'blacklist', id: record._id, ip: record.ip })}
                             title="แบนถาวร"
                             className="flex h-8 w-8 items-center justify-center rounded-md bg-red-500/10 text-red-400 hover:bg-red-500 hover:text-white transition-all"
                           >
@@ -180,7 +206,7 @@ export default function SecurityView() {
                           </button>
                         )}
                         <button
-                          onClick={() => handleWhitelist(record._id)}
+                          onClick={() => setPendingAction({ type: 'whitelist', id: record._id, ip: record.ip })}
                           title="ปลดแบน / รีเซ็ต"
                           className="flex h-8 w-8 items-center justify-center rounded-md bg-green-500/10 text-green-400 hover:bg-green-500 hover:text-white transition-all"
                         >
@@ -195,6 +221,27 @@ export default function SecurityView() {
           </table>
         </div>
       </div>
+      <ConfirmDialog
+        open={Boolean(pendingAction)}
+        title={pendingAction?.type === 'blacklist' ? 'แบน IP ถาวร' : 'ปลดแบน / รีเซ็ต IP'}
+        description={
+          pendingAction?.type === 'blacklist'
+            ? `ยืนยันการแบน IP ${pendingAction.ip} แบบถาวร`
+            : `ยืนยันการปลดแบนหรือรีเซ็ตประวัติของ IP ${pendingAction?.ip || ''}`
+        }
+        confirmLabel={pendingAction?.type === 'blacklist' ? 'แบนถาวร' : 'ปลดแบน'}
+        tone={pendingAction?.type === 'blacklist' ? 'danger' : 'default'}
+        loading={actionLoading}
+        onConfirm={confirmPendingAction}
+        onCancel={() => setPendingAction(null)}
+      />
+      {toast && (
+        <Toast
+          message={toast.message}
+          tone={toast.tone}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

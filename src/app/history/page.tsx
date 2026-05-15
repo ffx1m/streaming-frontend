@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashCan, faPlay } from '@fortawesome/free-solid-svg-icons';
+import ConfirmDialog from '@/components/ConfirmDialog';
 import ExternalImage from '@/components/ExternalImage';
 
 interface HistoryItem {
@@ -19,6 +20,7 @@ interface HistoryItem {
 export default function HistoryPage() {
   const [history, setHistory] = useState<HistoryItem[]>([]);
   const [mounted, setMounted] = useState(false);
+  const [confirmClearOpen, setConfirmClearOpen] = useState(false);
 
   useEffect(() => {
     queueMicrotask(() => {
@@ -33,10 +35,9 @@ export default function HistoryPage() {
   }, []);
 
   const handleClearHistory = () => {
-    if (confirm('คุณต้องการล้างประวัติการเข้าชมทั้งหมดหรือไม่?')) {
-      localStorage.removeItem('watchHistory');
-      setHistory([]);
-    }
+    localStorage.removeItem('watchHistory');
+    setHistory([]);
+    setConfirmClearOpen(false);
   };
 
   if (!mounted) return null; // Avoid hydration mismatch
@@ -47,7 +48,7 @@ export default function HistoryPage() {
         <h1 className="text-2xl font-bold md:text-3xl">ประวัติการเข้าชม</h1>
         {history.length > 0 && (
           <button 
-            onClick={handleClearHistory}
+            onClick={() => setConfirmClearOpen(true)}
             className="flex items-center gap-2 rounded-md bg-red-500/10 px-4 py-2 text-sm font-bold text-red-300 transition-colors hover:bg-red-500/15"
           >
             <FontAwesomeIcon icon={faTrashCan} />
@@ -99,6 +100,15 @@ export default function HistoryPage() {
           ))}
         </div>
       )}
+      <ConfirmDialog
+        open={confirmClearOpen}
+        title="ล้างประวัติการเข้าชม"
+        description="ยืนยันการล้างประวัติการเข้าชมทั้งหมดบนอุปกรณ์นี้"
+        confirmLabel="ล้างประวัติ"
+        tone="danger"
+        onConfirm={handleClearHistory}
+        onCancel={() => setConfirmClearOpen(false)}
+      />
     </div>
   );
 }

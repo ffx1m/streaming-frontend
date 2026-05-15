@@ -6,6 +6,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faPlay, faShareNodes, faEye, faListUl } from '@fortawesome/free-solid-svg-icons';
 import ExternalImage from '@/components/ExternalImage';
 import LanguageBadge from '@/components/LanguageBadge';
+import Toast from '@/components/Toast';
 
 interface Episode {
   _id: string;
@@ -30,6 +31,7 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
   const [isExpanded, setIsExpanded] = useState(false);
   const [canToggleDescription, setCanToggleDescription] = useState(false);
   const [currentTab, setCurrentTab] = useState(0);
+  const [toastMessage, setToastMessage] = useState('');
   const descriptionRef = useRef<HTMLParagraphElement>(null);
 
   useEffect(() => {
@@ -68,7 +70,8 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
       });
     } else {
       navigator.clipboard.writeText(window.location.href);
-      alert('คัดลอกลิงก์เรียบร้อยแล้ว');
+      setToastMessage('คัดลอกลิงก์เรียบร้อยแล้ว');
+      window.setTimeout(() => setToastMessage(''), 3500);
     }
   };
 
@@ -191,6 +194,10 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
           </div>
         )}
       </section>
+      <Toast
+        message={toastMessage}
+        onClose={() => setToastMessage('')}
+      />
     </div>
   );
 }

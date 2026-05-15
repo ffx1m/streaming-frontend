@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faListUl, faPenToSquare, faPlus, faSearch, faTrashCan } from '@fortawesome/free-solid-svg-icons';
 import ExternalImage from '@/components/ExternalImage';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import Toast from '@/components/Toast';
 import { adminFetch } from '@/lib/adminFetch';
 
 interface AdminSeries {
@@ -23,6 +25,9 @@ export default function AdminSeriesList() {
   const [series, setSeries] = useState<AdminSeries[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<AdminSeries | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     async function loadSeries() {
@@ -55,21 +60,31 @@ export default function AdminSeriesList() {
     });
   }, [query, series]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('ยืนยันการลบซีรีส์เรื่องนี้? (ตอนทั้งหมดจะถูกลบด้วย)')) return;
+  const showToast = (message: string, tone: 'success' | 'error' = 'success') => {
+    setToast({ message, tone });
+    window.setTimeout(() => setToast(null), 3500);
+  };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setDeleteLoading(true);
     try {
-      const res = await adminFetch(`/admin/series/${id}`, {
+      const res = await adminFetch(`/admin/series/${deleteTarget._id}`, {
         method: 'DELETE',
       });
       
       if (res.ok) {
-        setSeries((current) => current.filter((item) => item._id !== id));
+        setSeries((current) => current.filter((item) => item._id !== deleteTarget._id));
+        showToast('ลบซีรีส์แล้ว');
+        setDeleteTarget(null);
       } else {
-        alert('ลบข้อมูลไม่สำเร็จ');
+        showToast('ลบข้อมูลไม่สำเร็จ', 'error');
       }
     } catch {
-      console.error('Error deleting series');
+      showToast('ลบข้อมูลไม่สำเร็จ', 'error');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -158,7 +173,7 @@ export default function AdminSeriesList() {
                       </Link>
                       <button 
                         type="button"
-                        onClick={() => handleDelete(item._id)}
+                        onClick={() => setDeleteTarget(item)}
                         className="inline-flex items-center gap-1.5 rounded-md bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-200 transition-colors hover:bg-red-500/25"
                       >
                         <FontAwesomeIcon icon={faTrashCan} className="h-3.5 w-3.5" />
@@ -200,7 +215,7 @@ export default function AdminSeriesList() {
                 <FontAwesomeIcon icon={faPenToSquare} className="h-3.5 w-3.5" />
                 แก้ไข
               </Link>
-              <button type="button" onClick={() => handleDelete(item._id)} className="inline-flex items-center justify-center gap-1.5 rounded-md bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-200">
+              <button type="button" onClick={() => setDeleteTarget(item)} className="inline-flex items-center justify-center gap-1.5 rounded-md bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-200">
                 <FontAwesomeIcon icon={faTrashCan} className="h-3.5 w-3.5" />
                 ลบ
               </button>
@@ -211,6 +226,23 @@ export default function AdminSeriesList() {
           <div className="rounded-lg border border-white/10 bg-[#1b1b1d] p-8 text-center text-[var(--color-text-secondary)]">ไม่พบซีรีส์ที่ตรงกับคำค้นหา</div>
         )}
       </div>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="ลบซีรีส์"
+        description={`ยืนยันการลบ "${deleteTarget?.title || ''}" ตอนทั้งหมดของซีรีส์นี้จะถูกลบด้วย`}
+        confirmLabel="ลบซีรีส์"
+        tone="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      {toast && (
+        <Toast
+          message={toast.message}
+          tone={toast.tone}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

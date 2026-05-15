@@ -5,6 +5,8 @@ import Link from 'next/link';
 import { useParams } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faArrowLeft, faPenToSquare, faPlus, faSearch, faTrashCan } from '@fortawesome/free-solid-svg-icons';
+import ConfirmDialog from '@/components/ConfirmDialog';
+import Toast from '@/components/Toast';
 import { adminFetch } from '@/lib/adminFetch';
 
 interface Episode {
@@ -21,6 +23,9 @@ export default function AdminEpisodesList() {
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [query, setQuery] = useState('');
   const [loading, setLoading] = useState(true);
+  const [deleteTarget, setDeleteTarget] = useState<Episode | null>(null);
+  const [deleteLoading, setDeleteLoading] = useState(false);
+  const [toast, setToast] = useState<{ message: string; tone: 'success' | 'error' } | null>(null);
 
   useEffect(() => {
     async function loadEpisodes() {
@@ -53,21 +58,31 @@ export default function AdminEpisodesList() {
     });
   }, [episodes, query]);
 
-  const handleDelete = async (id: string) => {
-    if (!confirm('ยืนยันการลบตอนนี้?')) return;
+  const showToast = (message: string, tone: 'success' | 'error' = 'success') => {
+    setToast({ message, tone });
+    window.setTimeout(() => setToast(null), 3500);
+  };
 
+  const handleDelete = async () => {
+    if (!deleteTarget) return;
+
+    setDeleteLoading(true);
     try {
-      const res = await adminFetch(`/admin/episodes/${id}`, {
+      const res = await adminFetch(`/admin/episodes/${deleteTarget._id}`, {
         method: 'DELETE',
       });
       
       if (res.ok) {
-        setEpisodes((current) => current.filter((item) => item._id !== id));
+        setEpisodes((current) => current.filter((item) => item._id !== deleteTarget._id));
+        showToast('ลบตอนแล้ว');
+        setDeleteTarget(null);
       } else {
-        alert('ลบข้อมูลไม่สำเร็จ');
+        showToast('ลบข้อมูลไม่สำเร็จ', 'error');
       }
     } catch {
-      console.error('Error deleting episode');
+      showToast('ลบข้อมูลไม่สำเร็จ', 'error');
+    } finally {
+      setDeleteLoading(false);
     }
   };
 
@@ -142,7 +157,7 @@ export default function AdminEpisodesList() {
                       </Link>
                       <button 
                         type="button"
-                        onClick={() => handleDelete(item._id)}
+                        onClick={() => setDeleteTarget(item)}
                         className="inline-flex items-center gap-1.5 rounded-md bg-red-500/15 px-3 py-2 text-xs font-semibold text-red-200 transition-colors hover:bg-red-500/25"
                       >
                         <FontAwesomeIcon icon={faTrashCan} className="h-3.5 w-3.5" />
@@ -159,6 +174,23 @@ export default function AdminEpisodesList() {
           )}
         </div>
       </div>
+      <ConfirmDialog
+        open={Boolean(deleteTarget)}
+        title="ลบตอน"
+        description={`ยืนยันการลบตอนที่ ${deleteTarget?.episodeNumber || ''} ${deleteTarget?.title || ''}`}
+        confirmLabel="ลบตอน"
+        tone="danger"
+        loading={deleteLoading}
+        onConfirm={handleDelete}
+        onCancel={() => setDeleteTarget(null)}
+      />
+      {toast && (
+        <Toast
+          message={toast.message}
+          tone={toast.tone}
+          onClose={() => setToast(null)}
+        />
+      )}
     </div>
   );
 }

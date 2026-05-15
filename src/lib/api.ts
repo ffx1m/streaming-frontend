@@ -1,6 +1,10 @@
 const localApiUrl = 'http://localhost:5000/api';
 
 export function getApiUrl() {
+  // Use relative proxy path on the client to avoid CORS and connectivity issues
+  if (typeof window !== 'undefined') {
+    return '/api/backend';
+  }
   return process.env.NEXT_PUBLIC_API_URL || localApiUrl;
 }
 

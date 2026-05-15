@@ -193,7 +193,7 @@ export default function WatchPage() {
 
   const warmNextEpisodeManifest = (currentTime: number, duration: number) => {
     if (!seriesData?.nextEpisodeUrl || !Number.isFinite(duration) || duration <= 0) return;
-    if (duration - currentTime > 30) return;
+    if (duration - currentTime > 45) return;
     if (!isHlsManifestUrl(seriesData.nextEpisodeUrl)) return;
     if (!canWarmNextEpisodeManifest()) return;
     if (prefetchedNextManifestRef.current === seriesData.nextEpisodeUrl) return;

@@ -49,12 +49,26 @@ export default function HlsVideoPlayer({ src, className, onEnded, onTimeUpdate }
     const hls = new Hls({
       enableWorker: true,
       lowLatencyMode: false,
-      backBufferLength: 180,         // เก็บวิดีโอที่ดูไปแล้วไว้ใน RAM 3 นาที (กดย้อนกลับลื่นปรี๊ด)
-      maxBufferLength: 180,          // โหลดวิดีโอล่วงหน้าไว้ 3 นาที (ให้จบตอนสำหรับวิดีโอสั้น)
-      maxMaxBufferLength: 300,       // เพดานสูงสุดของการโหลดล่วงหน้า
-      maxBufferSize: 90 * 1024 * 1024, // เพิ่มขนาด Buffer ใน RAM เป็น 90MB (ครอบคลุมวิดีโอ 1080p ทั้งตอน)
-      startLevel: 0,                 // เริ่มต้นที่ความละเอียดต่ำสุดเพื่อความเร็วในการเปิดติด (Instant Start)
-      abrEwmaDefaultEstimate: 5000000, // ประเมินเน็ตเริ่มต้นไว้ที่ 5Mbps เพื่อให้ขยับมาชัดเร็วขึ้น
+      startLevel: 0,
+      capLevelOnFPSDrop: true,
+      backBufferLength: 45,
+      maxBufferLength: 90,
+      maxMaxBufferLength: 180,
+      maxBufferSize: 60 * 1024 * 1024,
+      abrEwmaDefaultEstimate: 1800000,
+      abrEwmaFastLive: 3,
+      abrEwmaSlowLive: 9,
+      abrBandWidthFactor: 0.85,
+      abrBandWidthUpFactor: 0.7,
+      manifestLoadingTimeOut: 8000,
+      manifestLoadingMaxRetry: 4,
+      manifestLoadingRetryDelay: 500,
+      levelLoadingTimeOut: 8000,
+      levelLoadingMaxRetry: 4,
+      levelLoadingRetryDelay: 500,
+      fragLoadingTimeOut: 12000,
+      fragLoadingMaxRetry: 6,
+      fragLoadingRetryDelay: 500,
     });
 
     hls.loadSource(src);

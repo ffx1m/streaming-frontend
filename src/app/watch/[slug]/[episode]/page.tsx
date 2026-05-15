@@ -29,6 +29,7 @@ interface WatchData {
   totalEpisodes: number;
   currentEpisodeId: string | null;
   currentEpisodeUrl: string;
+  nextEpisodeUrl: string;
   hasCurrentEpisode: boolean;
 }
 
@@ -48,6 +49,8 @@ export default function WatchPage() {
   const slug = params.slug as string;
   const episode = parseInt(params.episode as string) || 1;
   const trackedRef = useRef(false);
+  const prefetchedNextRouteRef = useRef('');
+  const prefetchedNextManifestRef = useRef('');
   
   const [seriesData, setSeriesData] = useState<WatchData | null>(null);
   const [missingSeries, setMissingSeries] = useState(false);
@@ -69,6 +72,7 @@ export default function WatchPage() {
         const data = json.data;
         const episodes = (data.episodes || []) as Episode[];
         const currentEp = episodes.find((ep) => ep.episodeNumber === episode);
+        const nextEp = episodes.find((ep) => ep.episodeNumber === episode + 1);
         
         setSeriesData({
           seriesId: data._id,
@@ -78,6 +82,7 @@ export default function WatchPage() {
           totalEpisodes: episodes.length,
           currentEpisodeId: currentEp ? currentEp._id : null,
           currentEpisodeUrl: currentEp ? currentEp.videoUrl : '',
+          nextEpisodeUrl: nextEp ? nextEp.videoUrl : '',
           hasCurrentEpisode: Boolean(currentEp),
         });
       } catch {
@@ -158,6 +163,51 @@ export default function WatchPage() {
     }, 100);
   }, [seriesData, episode]);
 
+  useEffect(() => {
+    if (!seriesData || episode >= seriesData.totalEpisodes) return;
+
+    const nextPath = `/watch/${slug}/${episode + 1}`;
+    if (prefetchedNextRouteRef.current === nextPath) return;
+
+    prefetchedNextRouteRef.current = nextPath;
+    router.prefetch(nextPath);
+  }, [episode, router, seriesData, slug]);
+
+  const canWarmNextEpisodeManifest = () => {
+    const connection = (navigator as Navigator & {
+      connection?: { saveData?: boolean; effectiveType?: string };
+    }).connection;
+
+    if (connection?.saveData) return false;
+    if (connection?.effectiveType === 'slow-2g' || connection?.effectiveType === '2g') return false;
+    return true;
+  };
+
+  const isHlsManifestUrl = (value: string) => {
+    try {
+      return new URL(value, window.location.href).pathname.toLowerCase().endsWith('.m3u8');
+    } catch {
+      return value.toLowerCase().split('?')[0].endsWith('.m3u8');
+    }
+  };
+
+  const warmNextEpisodeManifest = (currentTime: number, duration: number) => {
+    if (!seriesData?.nextEpisodeUrl || !Number.isFinite(duration) || duration <= 0) return;
+    if (duration - currentTime > 30) return;
+    if (!isHlsManifestUrl(seriesData.nextEpisodeUrl)) return;
+    if (!canWarmNextEpisodeManifest()) return;
+    if (prefetchedNextManifestRef.current === seriesData.nextEpisodeUrl) return;
+
+    prefetchedNextManifestRef.current = seriesData.nextEpisodeUrl;
+    fetch(seriesData.nextEpisodeUrl, {
+      method: 'GET',
+      cache: 'force-cache',
+      credentials: 'omit',
+    }).catch(() => {
+      prefetchedNextManifestRef.current = '';
+    });
+  };
+
   const handleVideoEnded = () => {
     if (seriesData && episode < seriesData.totalEpisodes) {
       router.push(`/watch/${slug}/${episode + 1}`);
@@ -191,6 +241,7 @@ export default function WatchPage() {
           className="h-full w-full object-contain"
           src={seriesData.currentEpisodeUrl}
           onEnded={handleVideoEnded}
+          onTimeUpdate={warmNextEpisodeManifest}
         />
       </div>
 

@@ -7,6 +7,7 @@ type HlsVideoPlayerProps = {
   src: string;
   className?: string;
   onEnded?: () => void;
+  onTimeUpdate?: (currentTime: number, duration: number) => void;
 };
 
 function isHlsUrl(src: string) {
@@ -17,7 +18,7 @@ function isHlsUrl(src: string) {
   }
 }
 
-export default function HlsVideoPlayer({ src, className, onEnded }: HlsVideoPlayerProps) {
+export default function HlsVideoPlayer({ src, className, onEnded, onTimeUpdate }: HlsVideoPlayerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const [fatalPlaybackError, setFatalPlaybackError] = useState<{ src: string; message: string } | null>(null);
   const unsupportedHlsMessage = useMemo(() => {
@@ -80,6 +81,10 @@ export default function HlsVideoPlayer({ src, className, onEnded }: HlsVideoPlay
         playsInline
         className={className}
         onEnded={onEnded}
+        onTimeUpdate={(event) => {
+          const video = event.currentTarget;
+          onTimeUpdate?.(video.currentTime, video.duration);
+        }}
       >
         Your browser does not support the video tag.
       </video>

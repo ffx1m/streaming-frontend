@@ -87,7 +87,7 @@ export default function SeriesClientView({ series }: { series: SeriesDetails }) 
       <section className="grid gap-6 md:grid-cols-[240px_minmax(0,1fr)] md:gap-8">
         <div className="mx-auto w-full max-w-[240px] md:mx-0">
           <div className="relative aspect-[3/4] overflow-hidden rounded-lg border border-white/10 bg-[#1b1b1d] shadow-lg">
-            <ExternalImage src={series.posterUrl} alt={series.title} fill sizes="240px" className="object-cover" />
+            <ExternalImage src={series.posterUrl} alt={series.title} fill sizes="240px" className="object-cover" priority />
             <LanguageBadge languageType={series.languageType} className="absolute left-2 top-2 text-xs" />
           </div>
         </div>

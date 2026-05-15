@@ -23,12 +23,6 @@ export default function RootLayout({
 }) {
   return (
     <html lang="th" className="dark">
-      <head>
-        <link
-          href="https://cdn.jsdelivr.net/gh/lazywasabi/thai-web-fonts@7/fonts/LINESeedSansTH/LINESeedSansTH.css"
-          rel="stylesheet"
-        />
-      </head>
       <body className="min-h-screen bg-black text-white antialiased flex flex-col">
         <AppShell>
           {children}

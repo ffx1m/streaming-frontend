@@ -64,7 +64,7 @@ export default function Navbar() {
                   : 'text-[var(--color-text-secondary)] hover:text-white'
               }`}
             >
-              <FontAwesomeIcon icon={item.icon} className="text-[14px]" />
+              <FontAwesomeIcon icon={item.icon} className="text-[12px]" />
               <span>{item.name}</span>
             </Link>
           ))}

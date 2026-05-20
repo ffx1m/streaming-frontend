@@ -1,5 +1,5 @@
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faEnvelope, faUserCircle, faQuestionCircle, faHeadset } from '@fortawesome/free-solid-svg-icons';
+import { faUserCircle, faQuestionCircle, faHeadset } from '@fortawesome/free-solid-svg-icons';
 import { faFacebook, faLine } from '@fortawesome/free-brands-svg-icons';
 import { createPageMetadata } from '@/lib/seo';
 
@@ -51,29 +51,7 @@ export default function ProfilePage() {
           <h2 className="text-xl font-bold text-white">ติดต่อทีมงาน</h2>
         </div>
         <div className="space-y-3">
-          <a href="mailto:support@vseries.com" className="flex items-center gap-4 rounded-lg border border-white/10 bg-[#1b1b1d] p-4 transition-colors hover:bg-white/5">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[var(--color-primary)]/15 text-xl text-[var(--color-primary)]">
-              <FontAwesomeIcon icon={faEnvelope} />
-            </div>
-            <div>
-              <h3 className="font-bold text-lg">Email</h3>
-              <p className="text-[var(--color-text-secondary)] text-sm">support@vseries.com</p>
-            </div>
-          </a>
-
-          <div className="flex items-center gap-4 rounded-lg border border-white/10 bg-[#1b1b1d] p-4">
-            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[#1877F2]/15 text-xl text-[#4b9cff]">
-              <FontAwesomeIcon icon={faFacebook} />
-            </div>
-            <div className="min-w-0 flex-1">
-              <div className="flex items-center gap-2">
-                <h3 className="font-bold text-lg">Facebook</h3>
-                <span className="rounded bg-white/10 px-2 py-1 text-[10px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">เร็ว ๆ นี้</span>
-              </div>
-              <p className="text-[var(--color-text-secondary)] text-sm">VSeries Thailand</p>
-            </div>
-          </div>
-
+          {/* Line Official - prioritized */}
           <div className="flex items-center gap-4 rounded-lg border border-white/10 bg-[#1b1b1d] p-4">
             <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[#00B900]/15 text-2xl text-[#28d928]">
               <FontAwesomeIcon icon={faLine} />
@@ -87,6 +65,20 @@ export default function ProfilePage() {
                 </div>
               </div>
               <p className="text-[var(--color-text-secondary)] text-sm">@vseries (ติดต่อสอบถามได้รวดเร็วที่สุด)</p>
+            </div>
+          </div>
+
+          {/* Facebook */}
+          <div className="flex items-center gap-4 rounded-lg border border-white/10 bg-[#1b1b1d] p-4">
+            <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-md bg-[#1877F2]/15 text-xl text-[#4b9cff]">
+              <FontAwesomeIcon icon={faFacebook} />
+            </div>
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-2">
+                <h3 className="font-bold text-lg text-white">Facebook</h3>
+                <span className="rounded bg-white/10 px-2 py-1 text-[10px] font-bold text-[var(--color-text-secondary)] uppercase tracking-wider">เร็ว ๆ นี้</span>
+              </div>
+              <p className="text-[var(--color-text-secondary)] text-sm">VSeries Thailand</p>
             </div>
           </div>
         </div>

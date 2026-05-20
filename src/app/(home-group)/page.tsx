@@ -23,7 +23,7 @@ async function getHomeSeries(): Promise<HomeSeries> {
   try {
     const apiUrl = getRequiredApiUrl('home page series');
     const res = await fetch(`${apiUrl}/series/home`, {
-      next: { revalidate: 300 }, // Cache for 5 minutes instead of 1
+      next: { revalidate: 60 },
     });
     
     if (!res.ok) {

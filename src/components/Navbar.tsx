@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faHome, faFilm, faSearch, faHistory, faEnvelope } from '@fortawesome/free-solid-svg-icons';
+import { faHome, faFilm, faSearch, faHistory, faUser } from '@fortawesome/free-solid-svg-icons';
 
 export default function Navbar() {
   const pathname = usePathname();
@@ -13,7 +13,7 @@ export default function Navbar() {
     { name: 'หมวดหมู่', path: '/category/all', icon: faFilm },
     { name: 'ค้นหา', path: '/search', icon: faSearch },
     { name: 'ประวัติ', path: '/history', icon: faHistory },
-    { name: 'ติดต่อ', path: '/contact', icon: faEnvelope },
+    { name: 'โปรไฟล์', path: '/profile', icon: faUser },
   ];
 
   return (
@@ -58,13 +58,13 @@ export default function Navbar() {
             <Link
               key={item.path}
               href={item.path}
-              className={`flex h-full w-full flex-col items-center justify-center gap-1 text-[11px] font-semibold transition-colors ${
+              className={`flex h-full w-full flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors ${
                 pathname === item.path || (pathname.startsWith('/category') && item.path.includes('category'))
                   ? 'text-[var(--color-primary)]'
                   : 'text-[var(--color-text-secondary)] hover:text-white'
               }`}
             >
-              <FontAwesomeIcon icon={item.icon} className="h-5 w-5" />
+              <FontAwesomeIcon icon={item.icon} className="text-[14px]" />
               <span>{item.name}</span>
             </Link>
           ))}

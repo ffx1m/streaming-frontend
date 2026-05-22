@@ -18,8 +18,8 @@ export default function ProfilePage() {
           <FontAwesomeIcon icon={faUserCircle} />
         </div>
         <div className="space-y-1">
-          <h1 className="text-2xl font-bold text-white">ผู้เยี่ยมชม (Guest)</h1>
-          <p className="text-sm text-[var(--color-text-secondary)]">เข้าสู่ระบบเพื่อซิงค์ประวัติการรับชมในทุกอุปกรณ์ (เร็วๆ นี้)</p>
+          <h1 className="text-2xl font-bold text-white">ผู้เยี่ยมชม Guest</h1>
+          <p className="text-sm text-[var(--color-text-secondary)]">เร็วๆ นี้</p>
         </div>
         <button className="mt-2 rounded-full bg-white/5 px-6 py-2 text-sm font-bold text-white transition-colors hover:bg-white/10 border border-white/10">
           เข้าสู่ระบบ / สมัครสมาชิก
